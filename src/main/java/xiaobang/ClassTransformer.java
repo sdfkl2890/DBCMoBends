@@ -5,7 +5,13 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class ClassTransformer implements IClassTransformer {
+
+
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
 
@@ -17,6 +23,13 @@ public class ClassTransformer implements IClassTransformer {
         ClassWriter cw = new ClassWriter(cr,0);
         MyClassVisitor cv = new MyClassVisitor(cw);
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
+        try {
+            FileOutputStream fos = new FileOutputStream("C:\\ModelBipedBody.class");
+            fos.write(cw.toByteArray());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return cw.toByteArray();
     }
     static class MyClassVisitor extends ClassVisitor {
@@ -28,8 +41,10 @@ public class ClassTransformer implements IClassTransformer {
             MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
             if (name.equals("<init>")) {
                 if(desc.equals("(FFII)V")){
-                    return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, access, name, desc);
+                    return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"init");
                 }
+            }else if(name.equals("setRotationAngles") || name.equals("func_78087_a")){
+                return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,"setRotationAngles");
             }
             return methodVisitor;
         }
@@ -61,27 +76,34 @@ public class ClassTransformer implements IClassTransformer {
             cv.visitEnd();
         }
     }
-    static class MyMethodAdapter extends AdviceAdapter {
-
-        /**
-         * Creates a new {@link AdviceAdapter}.
-         *
-         * @param api    the ASM API version implemented by this visitor. Must be one
-         *               of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-         * @param mv     the method visitor to which this adapter delegates calls.
-         * @param access the method's access flags (see {@link Opcodes}).
-         * @param name   the method's name.
-         * @param desc   the method's descriptor (see {@link Type Type}).
-         */
-        protected MyMethodAdapter(int api, MethodVisitor mv, int access, String name, String desc) {
-            super(api, mv, access, name, desc);
+    static class MyMethodAdapter extends MethodVisitor {
+        String methodName;
+        public MyMethodAdapter(int api,MethodVisitor methodVisitor,String methodName) {
+            super(api,methodVisitor);
+            this.methodName = methodName;
         }
 
         @Override
-        protected void onMethodEnter() {
-            super.onMethodEnter();
-            mv.visitMethodInsn(INVOKESTATIC, "xiaobang/DBCMoBends", "edit", "(LJinRyuu/JRMCore/entity/ModelBipedBody;)V", false);
+        public void visitInsn(int opcode) {
+            if(opcode == Opcodes.ARETURN || opcode == Opcodes.RETURN ) {
+                if(methodName.equals("init")) {
+                    mv.visitVarInsn(Opcodes.ALOAD, 0);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "edit", "(LJinRyuu/JRMCore/entity/ModelBipedBody;)V", false);
+                }else if(methodName.equals("setRotationAngles")){
+                    mv.visitVarInsn(Opcodes.ALOAD, 0);
+                    mv.visitVarInsn(Opcodes.ALOAD, 1);
+                    mv.visitVarInsn(Opcodes.ALOAD, 2);
+                    mv.visitVarInsn(Opcodes.ALOAD, 3);
+                    mv.visitVarInsn(Opcodes.ALOAD, 4);
+                    mv.visitVarInsn(Opcodes.ALOAD, 5);
+                    mv.visitVarInsn(Opcodes.ALOAD, 6);
+                    mv.visitVarInsn(Opcodes.ALOAD, 7);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "setRotationAngles", "(LJinRyuu/JRMCore/entity/ModelBipedBody;FFFFFFLnet/minecraft/entity/Entity;)V", false);
+                }
+            }
+            super.visitInsn(opcode);
         }
+
     }
 
 }
