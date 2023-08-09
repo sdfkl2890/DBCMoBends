@@ -1,0 +1,16 @@
+[
+{
+  "modid": "dbcmobends",
+  "name": "DBC Mobends",
+  "description": "DBC and MoBends",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["xiaobang"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
