@@ -20,19 +20,19 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
-@Mod(modid = "dbcmobends",name = "DBCMoBends",version = "0.1",dependencies = "required-after:jinryuubetterrenderaddon;after:mobends")
+@Mod(modid = "dbcmobends", name = "DBCMoBends", version = "0.1", dependencies = "required-after:jinryuubetterrenderaddon;after:mobends")
 public class DBCMoBends {
     @Mod.EventHandler
-    public void init(FMLInitializationEvent event){
+    public void init(FMLInitializationEvent event) {
         FMLCommonHandler.instance().bus().register(this);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onRenderPlayer(RenderPlayerEvent.Pre event){
+    public void onRenderPlayer(RenderPlayerEvent.Pre event) {
         if (RenderManager.instance.renderEngine != null && RenderManager.instance.livingPlayer != null) {
-            if(event.entity instanceof EntityPlayer){
+            if (event.entity instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) event.entity;
-                if (event.renderer instanceof RenderPlayerJBRA){
+                if (event.renderer instanceof RenderPlayerJBRA) {
                     Data_Player data = Data_Player.get(event.entity.getEntityId());
                     float f2 = interpolateRotation(player.prevRenderYawOffset, player.renderYawOffset, event.partialRenderTick);
                     if (((SettingsBoolean) SettingsNode.getSetting("swordTrail")).data) {
@@ -60,7 +60,7 @@ public class DBCMoBends {
             GL11.glRotatef(f3 * 90.0F, 0.0F, 0.0F, 1.0F);
         } else {
             String s = EnumChatFormatting.getTextWithoutFormattingCodes(p_77043_1_.getCommandSenderName());
-            if ((s.equals("Dinnerbone") || s.equals("Grumm")) && (!(p_77043_1_ instanceof EntityPlayer) || !((EntityPlayer)p_77043_1_).getHideCape())) {
+            if ((s.equals("Dinnerbone") || s.equals("Grumm")) && (!(p_77043_1_ instanceof EntityPlayer) || !((EntityPlayer) p_77043_1_).getHideCape())) {
                 GL11.glTranslatef(0.0F, p_77043_1_.height + 0.1F, 0.0F);
                 GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
             }
