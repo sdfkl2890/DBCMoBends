@@ -11,7 +11,7 @@ public class ClassTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if ("JinRyuu.JRMCore.entity.ModelBipedBody".equals(transformedName)) {//修改setRotationAngles,加上bipedRightForeArm,bipedLeftForeArm,bipedRightForeLeg,bipedLeftForeLeg属性
+        if ("JinRyuu.JRMCore.entity.ModelBipedBody".equals(transformedName)) {//修改init,setRotationAngles方法,加上bipedRightForeArm,bipedLeftForeArm,bipedRightForeLeg,bipedLeftForeLeg属性
             ClassReader cr = new ClassReader(basicClass);
             ClassNode cn = new ClassNode();
             cr.accept(cn, 0);
@@ -20,6 +20,8 @@ public class ClassTransformer implements IClassTransformer {
 
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+
+
                     MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
                     if (name.equals("<init>")) {
                         if (desc.equals("(FFII)V")) {
@@ -27,6 +29,8 @@ public class ClassTransformer implements IClassTransformer {
                         }
                     } else if (name.equals("setRotationAngles") || name.equals("func_78087_a")) {
                         return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "setRotationAngles");
+                    } else if(name.equals("renderBody")){
+                        return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,name);
                     }
                     return methodVisitor;
                 }
@@ -121,12 +125,23 @@ public class ClassTransformer implements IClassTransformer {
         }
 
         @Override
+        public void visitCode(){
+            if(methodName.equals("renderBody")) {
+                mv.visitVarInsn(Opcodes.ALOAD, 0);
+                mv.visitVarInsn(Opcodes.FLOAD, 1);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "renderBody", "(LJinRyuu/JRMCore/entity/ModelBipedBody;F)V", false);
+                mv.visitInsn(Opcodes.RETURN);
+                mv.visitEnd();
+            }
+        }
+
+        @Override
         public void visitInsn(int opcode) {
             if (opcode == Opcodes.ARETURN || opcode == Opcodes.RETURN) {
                 switch (methodName) {
                     case "init":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "edit", "(LJinRyuu/JRMCore/entity/ModelBipedBody;)V", false);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "init", "(LJinRyuu/JRMCore/entity/ModelBipedBody;)V", false);
                         break;
                     case "setRotationAngles":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -137,7 +152,7 @@ public class ClassTransformer implements IClassTransformer {
                         mv.visitVarInsn(Opcodes.FLOAD, 5);
                         mv.visitVarInsn(Opcodes.FLOAD, 6);
                         mv.visitVarInsn(Opcodes.ALOAD, 7);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "setRotationAngles", "(LJinRyuu/JRMCore/entity/ModelBipedBody;FFFFFFLnet/minecraft/entity/Entity;)V", false);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "setRotationAngles", "(LJinRyuu/JRMCore/entity/ModelBipedBody;FFFFFFLnet/minecraft/entity/Entity;)V", false);
                         break;
                     case "rotateCorpse":
                         mv.visitVarInsn(Opcodes.ALOAD, 1);
@@ -170,7 +185,6 @@ public class ClassTransformer implements IClassTransformer {
             }
             super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
-
 
     }
 

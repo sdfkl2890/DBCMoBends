@@ -1,8 +1,9 @@
 package xiaobang;
 
 import JinRyuu.JBRA.RenderPlayerJBRA;
-import JinRyuu.JRMCore.entity.ModelBipedBody;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -19,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
@@ -26,22 +28,22 @@ import org.lwjgl.opengl.GL11;
 public class DBCMoBends {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        FMLCommonHandler.instance().bus().register(this);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
         if (RenderManager.instance.renderEngine != null && RenderManager.instance.livingPlayer != null) {
             if (event.entity instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) event.entity;
                 if (event.renderer instanceof RenderPlayerJBRA) {
-                    if(!(event.renderer.modelArmor instanceof ModelBipedBody)){
+                    /*if(!(event.renderer.modelArmor instanceof ModelBipedBody)){
                         event.renderer.modelArmor = new ModelBipedBody(0.5F);
                     }
                     if(!(event.renderer.modelArmorChestplate instanceof ModelBipedBody)){
                         event.renderer.modelArmorChestplate = new ModelBipedBody(1.0F);
-                    }
-                    Data_Player data = Data_Player.get(event.entity.getEntityId());
+                    }*/
+                    Data_Player data = Data_Player.get(player.getEntityId());
                     float f2 = interpolateRotation(player.prevRenderYawOffset, player.renderYawOffset, event.partialRenderTick);
                     if (((SettingsBoolean) SettingsNode.getSetting("swordTrail")).data) {
                         GL11.glPushMatrix();
@@ -49,7 +51,7 @@ public class DBCMoBends {
                         rotateSuperCorpse(player, f2, event.partialRenderTick);
                         GL11.glTranslatef(0.0F, -24.0F * f5 - 0.0078125F - 2.0F * f5, 0.0F);
                         GL11.glScalef(f5, f5, f5);
-                        data.swordTrail.render(Editor.modelBendsPlayer);
+                        data.swordTrail.render(ModelBipedBody.modelBendsPlayer);
                         GL11.glPopMatrix();
                     }
                 }
@@ -58,7 +60,7 @@ public class DBCMoBends {
     }
 
 
-    protected void rotateSuperCorpse(EntityLivingBase p_77043_1_, float p_77043_3_, float p_77043_4_) {
+    private void rotateSuperCorpse(EntityLivingBase p_77043_1_, float p_77043_3_, float p_77043_4_) {
         GL11.glRotatef(180.0F - p_77043_3_, 0.0F, 1.0F, 0.0F);
         if (p_77043_1_.deathTime > 0) {
             float f3 = (p_77043_1_.deathTime + p_77043_4_ - 1.0F) / 20.0F * 1.6F;
