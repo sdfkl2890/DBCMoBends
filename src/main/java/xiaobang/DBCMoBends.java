@@ -1,6 +1,7 @@
 package xiaobang;
 
 import JinRyuu.JBRA.RenderPlayerJBRA;
+import JinRyuu.JRMCore.entity.ModelBipedBody;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -11,6 +12,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.settings.SettingsBoolean;
 import net.gobbob.mobends.settings.SettingsNode;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,6 +35,12 @@ public class DBCMoBends {
             if (event.entity instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) event.entity;
                 if (event.renderer instanceof RenderPlayerJBRA) {
+                    if(!(event.renderer.modelArmor instanceof ModelBipedBody)){
+                        event.renderer.modelArmor = new ModelBipedBody(0.5F);
+                    }
+                    if(!(event.renderer.modelArmorChestplate instanceof ModelBipedBody)){
+                        event.renderer.modelArmorChestplate = new ModelBipedBody(1.0F);
+                    }
                     Data_Player data = Data_Player.get(event.entity.getEntityId());
                     float f2 = interpolateRotation(player.prevRenderYawOffset, player.renderYawOffset, event.partialRenderTick);
                     if (((SettingsBoolean) SettingsNode.getSetting("swordTrail")).data) {

@@ -323,11 +323,11 @@ public class Editor {
         ArrayList<String> rightArm = new ArrayList<>();
         rightArm.add("rightarmshoulder");//GiTurtleMdl
         rightArm.add("Rarm");//DBC_GiTurtleMdl
-        rightArm.add("RRolledSleeve");//DBC_GiTurtleMdl,21号衣服右滚筒
+        //rightArm.add("RRolledSleeve");//DBC_GiTurtleMdl,21号衣服右滚筒
         ArrayList<String> leftArm = new ArrayList<>();
         leftArm.add("leftarmshoulder");//GiTurtleMdl
         leftArm.add("Larm");//DBC_GiTurtleMdl
-        leftArm.add("LRolledSleee");//DBC_GiTurtleMdl，21号衣服左滚筒
+        //leftArm.add("LRolledSleee");//DBC_GiTurtleMdl，21号衣服左滚筒
         //System.out.println("class " + body.getClass().getName());
         for (Field field : body.getClass().getFields()) {
             if (field.getType().getName().equals("net.minecraft.client.model.ModelRenderer")) {
@@ -382,6 +382,9 @@ public class Editor {
     public static void hairRotate(ModelBipedDBC dbc,float par1){
         ModelRendererBends head = (ModelRendererBends) dbc.bipedHead;
         GL11.glTranslatef(head.rotationPointX * par1, head.rotationPointY * par1, head.rotationPointZ * par1);
+        GL11.glRotatef(-head.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
+        GL11.glRotatef(head.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
+        GL11.glRotatef(head.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
         if (head.rotateAngleZ != 0.0F) {
             GL11.glRotatef(head.rotateAngleZ * 57.295776F, 0.0F, 0.0F, 1.0F);
         }
@@ -393,9 +396,6 @@ public class Editor {
         }
         //if(dbc.bipedHead instanceof ModelRendererBends) {
 
-            GL11.glRotatef(head.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
-            GL11.glRotatef(-head.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
-            GL11.glRotatef(head.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
         //}
         GL11.glPushMatrix();
     }
