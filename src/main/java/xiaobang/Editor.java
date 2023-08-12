@@ -125,6 +125,15 @@ public class Editor {
     }
 
     public static void setRotationAngles(ModelBipedBody body, float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity) {
+        //System.out.println("rotation " + body.getClass().getName());
+        try {
+            if (rightForeArm.get(body) == null) {
+                edit(body);
+            }
+        }catch (Exception e){
+            System.out.println(body.getClass().getName());
+            throw new RuntimeException(e);
+        }
         if (Minecraft.getMinecraft().theWorld != null) {
             if (!Minecraft.getMinecraft().theWorld.isRemote || !Minecraft.getMinecraft().isGamePaused()) {
                 Data_Player data = Data_Player.get(argEntity.getEntityId());
@@ -195,6 +204,9 @@ public class Editor {
                         if (argEntity.isSneaking()) {
                             AnimatedEntity.getByEntity(argEntity).get("sneak").animate((EntityLivingBase)argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
                             BendsPack.animate(modelBendsPlayer, "player", "sneak");
+                            if (modelBendsPlayer.bipedBody != null) {
+                                ((ModelRendererBends) modelBendsPlayer.bipedBody).rotation = new net.gobbob.mobends.util.SmoothVector3f();
+                            }
                         }
                     }
 
@@ -240,10 +252,7 @@ public class Editor {
                         if ((((data.motion.x != 0.0) ? 1 : 0) | ((data.motion.z != 0.0) ? 1 : 0)) != 0) {
                             if (i != 9527) {
                                 if (JRMCoreH.StusEfctsClient(7, i) && modelBendsPlayer.bipedHead != null) {
-                                    //System.out.println("head roation -90");
-                                    //if(entity.field_71075_bZ.field_75100_b){
                                     ((ModelRendererBends) modelBendsPlayer.bipedHead).rotation.setSmoothX(modelBendsPlayer.headRotationX - 90, 0.3F);
-                                    //}
                                 }
                             }
                         }
@@ -274,7 +283,7 @@ public class Editor {
                 }
 
                 data.syncModelInfo(modelBendsPlayer);
-                System.out.println("test555");
+
                 ((ModelRendererBends) body.bipedHead).sync(data.head);
                 ((ModelRendererBends) body.bipedBody).sync(data.body);
                 ((ModelRendererBends) body.bipedRightArm).sync(data.rightArm);
@@ -295,9 +304,9 @@ public class Editor {
     }
 
     private static void setRotation(ModelRenderer mr1,ModelRendererBends mr2){
-        mr1.rotateAngleX = mr2.rotateAngleX + mr2.pre_rotation.getX() / 57.295776F;
-        mr1.rotateAngleY = mr2.rotateAngleY - mr2.pre_rotation.getY() / 57.295776F;
-        mr1.rotateAngleZ = mr2.rotateAngleZ + mr2.pre_rotation.getZ() / 57.295776F;
+        mr1.rotateAngleX = (float) (mr2.rotation.getX() / 180 / 180 * Math.PI * Math.PI * 57.295776 + mr2.pre_rotation.getX() / 180 * Math.PI);
+        mr1.rotateAngleY = (float) (mr2.rotation.getY() / 180 / 180 * Math.PI * Math.PI * 57.295776 - mr2.pre_rotation.getY() / 180 * Math.PI);
+        mr1.rotateAngleZ = (float) (mr2.rotation.getZ() / 180 / 180 * Math.PI * Math.PI * 57.295776 + mr2.pre_rotation.getZ() / 180 * Math.PI);
     }
 
     private static void setOffset(ModelRenderer mr1,ModelRenderer mr2){
@@ -307,9 +316,10 @@ public class Editor {
     }
 
     //同步脸部,死亡光环之类
-    private static void sync(ModelBiped body) throws IllegalAccessException {
-        ModelRenderer[] mrs = new ModelRenderer[]{body.bipedHead, body.bipedRightArm, body.bipedLeftArm, body.bipedRightLeg, body.bipedLeftLeg};
-        ArrayList<String> head = new ArrayList<>(Arrays.asList("field_78114_d", "halo", "Fro", "Fro0", "Fro1", "Fro2", "Fro5", "SaiO", "SaiE", "Nam", "face1","face2","face3","face4","face5","face6","bipedHeadg", "bipedHeadt", "bipedHeadv", "bipedHeadgh", "bipedHeadg2", "bipedHeadght", "bipedHeadgt", "bipedHeadgtt", "bipedHeadc7", "bipedHeadc8", "bipedHeadrad", "bipedHeadradl", "bipedHeadradl2", "bipedHeadssj3t", "bipedHeadsg", "bipedHeadst", "bipedHeadsv", "bipedHeadsgh", "bipedHeadssg", "bipedHeadsst", "bipedHeadssv", "bipedHeadssgh","c20","c19"));
+    private static void sync(ModelBipedBody body) throws IllegalAccessException {
+
+        //ModelRenderer[] mrs = new ModelRenderer[]{body.bipedHead, body.bipedRightArm, body.bipedLeftArm, body.bipedRightLeg, body.bipedLeftLeg};
+        ArrayList<String> head = new ArrayList<>(Arrays.asList("field_78121_j","bipedEars","field_78114_d","bipedHeadwear","halo", "Fro", "Fro0", "Fro1", "Fro2", "Fro5", "SaiO", "SaiE", "Nam", "face1","face2","face3","face4","face5","face6","bipedHeadg", "bipedHeadt", "bipedHeadv", "bipedHeadgh", "bipedHeadg2", "bipedHeadght", "bipedHeadgt", "bipedHeadgtt", "bipedHeadc7", "bipedHeadc8", "bipedHeadrad", "bipedHeadradl", "bipedHeadradl2", "bipedHeadssj3t", "bipedHeadsg", "bipedHeadst", "bipedHeadsv", "bipedHeadsgh", "bipedHeadssg", "bipedHeadsst", "bipedHeadssv", "bipedHeadssgh"));
         ArrayList<String> rightArm = new ArrayList<>();
         rightArm.add("rightarmshoulder");//GiTurtleMdl
         rightArm.add("Rarm");//DBC_GiTurtleMdl
@@ -325,26 +335,28 @@ public class Editor {
                 ModelRenderer mr1 = (ModelRenderer) field.get(body);
                 if (mr1 != null) {
                     if(head.contains(field.getName())){
-                        if(body.bipedHead instanceof ModelRendererBends) {
-                            setRotation(mr1, (ModelRendererBends) body.bipedHead);
+                        if(!(field.get(body) instanceof ModelRendererBends)){
+                            field.set(body,convertBends(body,false, (ModelRenderer) field.get(body)));
                         }
+                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedHead);
+                        //setRotation(mr1, (ModelRendererBends) body.bipedHead);
                         setOffset(mr1,body.bipedHead);
-                        continue;
                     }else if(rightArm.contains(field.getName())){
-                        if(body.bipedRightArm instanceof ModelRendererBends) {
-                            setRotation(mr1, (ModelRendererBends) body.bipedRightArm);
+                        if(!(field.get(body) instanceof ModelRendererBends)){
+                            field.set(body,convertBends(body,false, (ModelRenderer) field.get(body)));
                         }
+                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedRightArm);
+                        //setRotation(mr1, (ModelRendererBends) body.bipedRightArm);
                         setOffset(mr1,body.bipedRightArm);
-                        continue;
-
                     }else if(leftArm.contains(field.getName())){
-                        if(body.bipedLeftArm instanceof ModelRendererBends) {
-                            setRotation(mr1, (ModelRendererBends) body.bipedLeftArm);
+                        if(!(field.get(body) instanceof ModelRendererBends)){
+                            field.set(body,convertBends(body,false, (ModelRenderer) field.get(body)));
                         }
+                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedLeftArm);
+                        //setRotation(mr1, (ModelRendererBends) body.bipedLeftArm);
                         setOffset(mr1,body.bipedLeftArm);
-                        continue;
                     }
-                    ModelBox box1 = (ModelBox) mr1.cubeList.get(0);
+                    /*ModelBox box1 = (ModelBox) mr1.cubeList.get(0);
                     for (ModelRenderer mr : mrs) {
                         if (mr instanceof ModelRendererBends) {
                             ModelRendererBends mr2 = (ModelRendererBends) mr;
@@ -361,29 +373,30 @@ public class Editor {
                                 }
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }
     }
 
     public static void hairRotate(ModelBipedDBC dbc,float par1){
-        GL11.glTranslatef(dbc.bipedHead.rotationPointX * par1, dbc.bipedHead.rotationPointY * par1, dbc.bipedHead.rotationPointZ * par1);
-        if (dbc.bipedHead.rotateAngleZ != 0.0F) {
-            GL11.glRotatef(dbc.bipedHead.rotateAngleZ * 57.295776F, 0.0F, 0.0F, 1.0F);
+        ModelRendererBends head = (ModelRendererBends) dbc.bipedHead;
+        GL11.glTranslatef(head.rotationPointX * par1, head.rotationPointY * par1, head.rotationPointZ * par1);
+        if (head.rotateAngleZ != 0.0F) {
+            GL11.glRotatef(head.rotateAngleZ * 57.295776F, 0.0F, 0.0F, 1.0F);
         }
-        if(dbc.bipedHead.rotateAngleY != 0.0F){
-            GL11.glRotatef(dbc.bipedHead.rotateAngleY * 57.295776F, 0.0F, 1.0F, 0.0F);
+        if(head.rotateAngleY != 0.0F){
+            GL11.glRotatef(head.rotateAngleY * 57.295776F, 0.0F, 1.0F, 0.0F);
         }
-        if(dbc.bipedHead.rotateAngleX != 0.0F){
-            GL11.glRotatef(dbc.bipedHead.rotateAngleX * 57.295776F, 1.0F, 0.0F, 0.0F);
+        if(head.rotateAngleX != 0.0F){
+            GL11.glRotatef(head.rotateAngleX * 57.295776F, 1.0F, 0.0F, 0.0F);
         }
-        if(dbc.bipedHead instanceof ModelRendererBends) {
-            ModelRendererBends head = (ModelRendererBends) dbc.bipedHead;
+        //if(dbc.bipedHead instanceof ModelRendererBends) {
+
             GL11.glRotatef(head.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
             GL11.glRotatef(-head.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(head.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
-        }
+        //}
         GL11.glPushMatrix();
     }
 
@@ -436,6 +449,7 @@ public class Editor {
             ((ModelRendererBends) body.bipedLeftArm).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
             ((ModelRendererBends) body.bipedRightLeg).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
             ((ModelRendererBends) body.bipedLeftLeg).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
+            //System.out.println("edit " + body.getClass().getName());
         } catch (IllegalAccessException exception) {
             throw new RuntimeException(exception);
         }
@@ -458,6 +472,9 @@ public class Editor {
     }
 
     private static ModelRendererBends convertBends(ModelBase base, boolean seperated, ModelRenderer modelRenderer) {
+        if(modelRenderer instanceof ModelRendererBends){
+            return (ModelRendererBends) modelRenderer;
+        }
         JsonObject jsonObject = new JsonParser().parse(gson.toJson(modelRenderer)).getAsJsonObject();
         jsonObject.addProperty("scaleX", 1.0F);
         jsonObject.addProperty("scaleY", 1.0F);
