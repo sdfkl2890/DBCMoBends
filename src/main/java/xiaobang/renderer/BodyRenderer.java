@@ -1,6 +1,5 @@
 package xiaobang.renderer;
 
-import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.minecraft.client.model.ModelBase;
 import org.lwjgl.opengl.GL11;
 
@@ -9,15 +8,6 @@ public class BodyRenderer extends PartRenderer {
         super(argModel, argTexOffsetX, argTexOffsetY);
     }
 
-
-
-
-    public float rotationPointY2;
-
-    public ModelRendererBends setRotationPointY2(float par1){
-        this.rotationPointY2 = par1;
-        return this;
-    }
 
 
 

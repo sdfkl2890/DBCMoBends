@@ -6,16 +6,38 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import org.lwjgl.opengl.GL11;
+import org.objectweb.asm.Opcodes;
+import xiaobang.renderer.BodyRenderer;
+import xiaobang.renderer.ModelRenderer2;
 
 import static xiaobang.ModelBipedBody.modelBendsPlayer;
 
 @SideOnly(Side.CLIENT)
 public class Editor {
-
+    public static int lastTextureId;
+    public static void bindTexture(int id){
+        lastTextureId = id;
+    }
 
 
     public static void hairRotate(ModelBipedDBC dbc,float par1){
-        ModelRendererBends head = (ModelRendererBends) dbc.bipedHead;
+        ModelRendererBends head = ((ModelRenderer2)dbc.bipedHead).source;
+        BodyRenderer body = (BodyRenderer)dbc.bipedBody;
+        GL11.glTranslatef(body.offsetX,body.offsetY,body.offsetZ);
+        GL11.glTranslatef(body.rotationPointX * par1, body.rotationPointY * par1, body.rotationPointZ * par1);
+        GL11.glRotatef(-body.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
+        GL11.glRotatef(body.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
+        GL11.glRotatef(body.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
+        if(body.rotateAngleZ != 0.0F){
+            GL11.glRotatef(body.rotateAngleZ * 57.295776F, 0.0F, 0.0F, 1.0F);
+        }
+        if(body.rotateAngleY != 0.0F){
+            GL11.glRotatef(body.rotateAngleY * 57.295776F, 0.0F, 1.0F, 0.0F);
+        }
+        if(body.rotateAngleX != 0.0F){
+            GL11.glRotatef(body.rotateAngleX * 57.295776F, 1.0F, 0.0F, 0.0F);
+        }
+        GL11.glTranslatef(head.offsetX,head.offsetY,head.offsetZ);
         GL11.glTranslatef(head.rotationPointX * par1, head.rotationPointY * par1, head.rotationPointZ * par1);
         GL11.glRotatef(-head.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
         GL11.glRotatef(head.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);

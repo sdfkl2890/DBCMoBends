@@ -1,7 +1,7 @@
 package xiaobang;
 
 
-import net.gobbob.mobends.client.model.ModelBoxBends;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
@@ -29,9 +29,9 @@ public class ClassTransformer implements IClassTransformer {
                         }
                     } else if (name.equals("setRotationAngles") || name.equals("func_78087_a")) {
                         return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "setRotationAngles");
-                    } else if(name.equals("renderBody")){
+                    } /*else if(name.equals("renderBody")){
                         return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,name);
-                    }
+                    }*/
                     return methodVisitor;
                 }
 
@@ -110,6 +110,22 @@ public class ClassTransformer implements IClassTransformer {
                 }
             }, ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
+        }else if("net.minecraft.client.renderer.texture.TextureUtil".equals(transformedName)){
+            ClassReader cr = new ClassReader(basicClass);
+            ClassNode cn = new ClassNode();
+            cr.accept(cn, 0);
+            ClassWriter cw = new ClassWriter(cr, 0);
+            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
+                    if (name.equals("bindTexture") || name.equals("func_94277_a")) {
+                        return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"bindTexture");
+                    }
+                    return methodVisitor;
+                }
+            }, ClassReader.EXPAND_FRAMES);
+            return cw.toByteArray();
         }
         return basicClass;
     }
@@ -124,7 +140,7 @@ public class ClassTransformer implements IClassTransformer {
             this.methodName = methodName;
         }
 
-        @Override
+        /*@Override
         public void visitCode(){
             if(methodName.equals("renderBody")) {
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -133,7 +149,7 @@ public class ClassTransformer implements IClassTransformer {
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitEnd();
             }
-        }
+        }*/
 
         @Override
         public void visitInsn(int opcode) {
@@ -141,7 +157,8 @@ public class ClassTransformer implements IClassTransformer {
                 switch (methodName) {
                     case "init":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "init", "(LJinRyuu/JRMCore/entity/ModelBipedBody;)V", false);
+                        mv.visitVarInsn(Opcodes.FLOAD,1);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "init", "(LJinRyuu/JRMCore/entity/ModelBipedBody;F)V", false);
                         break;
                     case "setRotationAngles":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -157,6 +174,10 @@ public class ClassTransformer implements IClassTransformer {
                     case "rotateCorpse":
                         mv.visitVarInsn(Opcodes.ALOAD, 1);
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "rotateCorpse", "(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", false);
+                        break;
+                    case "bindTexture":
+                        mv.visitVarInsn(Opcodes.ILOAD, 1);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "bindTexture", "(I)V", false);
                         break;
                 }
             }
