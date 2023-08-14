@@ -29,9 +29,9 @@ public class ClassTransformer implements IClassTransformer {
                         }
                     } else if (name.equals("setRotationAngles") || name.equals("func_78087_a")) {
                         return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "setRotationAngles");
-                    } /*else if(name.equals("renderBody")){
+                    } else if(name.equals("renderBody")){
                         return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,name);
-                    }*/
+                    }
                     return methodVisitor;
                 }
 
@@ -71,6 +71,10 @@ public class ClassTransformer implements IClassTransformer {
                         if (desc.equals("(Lnet/minecraft/client/entity/AbstractClientPlayer;FFF)V")) {
                             return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"rotateCorpse");
                         }
+                    }else if(name.equals("renderFirstPersonArm") || name.equals("func_82441_a")){
+                        if(desc.equals("(Lnet/minecraft/entity/player/EntityPlayer;)V")){
+                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"renderFirstPersonArm");
+                        }
                     }
                     return methodVisitor;
                 }
@@ -92,7 +96,7 @@ public class ClassTransformer implements IClassTransformer {
                 }
             }, ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
-        }else if("JinRyuu.JBRA.ModelBipedDBC".equals(transformedName)){
+        }/*else if("JinRyuu.JBRA.ModelBipedDBC".equals(transformedName)){
             ClassReader cr = new ClassReader(basicClass);
             ClassNode cn = new ClassNode();
             cr.accept(cn, 0);
@@ -119,14 +123,16 @@ public class ClassTransformer implements IClassTransformer {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                     MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-                    if (name.equals("bindTexture") || name.equals("func_94277_a")) {
-                        return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"bindTexture");
+                    if (name.equals("func_94277_a") || name.equals("bindTexture") || name.equals("b")) {
+                        if(desc.equals("(I)V")) {
+                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "bindTexture");
+                        }
                     }
                     return methodVisitor;
                 }
             }, ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
-        }
+        }*/
         return basicClass;
     }
 
@@ -140,7 +146,7 @@ public class ClassTransformer implements IClassTransformer {
             this.methodName = methodName;
         }
 
-        /*@Override
+        @Override
         public void visitCode(){
             if(methodName.equals("renderBody")) {
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -149,7 +155,7 @@ public class ClassTransformer implements IClassTransformer {
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitEnd();
             }
-        }*/
+        }
 
         @Override
         public void visitInsn(int opcode) {
@@ -175,10 +181,14 @@ public class ClassTransformer implements IClassTransformer {
                         mv.visitVarInsn(Opcodes.ALOAD, 1);
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "rotateCorpse", "(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", false);
                         break;
-                    case "bindTexture":
-                        mv.visitVarInsn(Opcodes.ILOAD, 1);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "bindTexture", "(I)V", false);
+                    case "renderFirstPersonArm":
+                        mv.visitVarInsn(Opcodes.ALOAD, 1);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "renderFirstPersonArm", "(Lnet/minecraft/entity/player/EntityPlayer;)V", false);
                         break;
+                    /*case "bindTexture":
+                        mv.visitVarInsn(Opcodes.ILOAD, 0);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "bindTexture", "(I)V", false);
+                        break;*/
                 }
             }
             super.visitInsn(opcode);
@@ -191,7 +201,7 @@ public class ClassTransformer implements IClassTransformer {
                 if(opcode == Opcodes.INVOKEVIRTUAL && owner.equals("java/io/PrintStream") && name.equals("println") && desc.equals("(Ljava/lang/String;)V")){
                     return;
                 }
-            }else if(methodName.equals("renderHairsV2")){
+            }/*else if(methodName.equals("renderHairsV2")){
                 if(opcode == Opcodes.INVOKESTATIC && owner.equals("org/lwjgl/opengl/GL11") && name.equals("glPushMatrix") && desc.equals("()V")){
                     times++;
                     if (times == 3){
@@ -203,7 +213,7 @@ public class ClassTransformer implements IClassTransformer {
                         return;
                     }
                 }
-            }
+            }*/
             super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
 

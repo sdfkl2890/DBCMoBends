@@ -25,7 +25,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import xiaobang.renderer.*;
 
@@ -34,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static JinRyuu.JRMCore.entity.ModelBipedBody.*;
 
 public class ModelBipedBody {
     public static ModelBendsPlayer modelBendsPlayer = new ModelBendsPlayer();
@@ -158,23 +162,30 @@ public class ModelBipedBody {
             //body.bipedBody.cubeList.clear();
             //body.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, par1);
 
-            ModelRenderer2 rightArm = new ModelRenderer2(body, ((ModelRendererBends_SeperatedChild)convertBends(body, ModelRendererBends_SeperatedChild.class, body.bipedRightArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm));
+            /*ModelRenderer2 rightArm = new ModelRenderer2(body, ((PartRenderer_SeperatedChild)convertBends(body, PartRenderer_SeperatedChild.class, body.bipedRightArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm));
             rightArm.source.cubeList.clear();
             rightArm.source.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, par1);
-            ModelRenderer2 leftArm = new ModelRenderer2(body, ((ModelRendererBends_SeperatedChild) convertBends(body, ModelRendererBends_SeperatedChild.class, body.bipedLeftArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedLeftForeArm));
+            ((BodyRenderer)body.bipedBody).rightArm = (PartRenderer) rightArm.source;
+            ModelRenderer2 leftArm = new ModelRenderer2(body, ((PartRenderer_SeperatedChild) convertBends(body, PartRenderer_SeperatedChild.class, body.bipedLeftArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedLeftForeArm));
             leftArm.source.cubeList.clear();
             leftArm.source.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, par1);
+            ((BodyRenderer)body.bipedBody).leftArm = (PartRenderer) leftArm.source;*/
 
-            body.bipedHead = new ModelRenderer2(body, convertBends(body, ModelRendererBends.class, body.bipedHead));
+
+            body.bipedHead = convertBends(body, PartRenderer.class, body.bipedHead);
+            ((BodyRenderer)body.bipedBody).head = (PartRenderer)body.bipedHead;
+            ((BodyRenderer) body.bipedBody).head.part = "head";
             body.bipedHeadwear = new ModelRenderer2(body, convertBends(body,ModelRendererBends.class,body.bipedHeadwear));
-            body.bipedRightArm = rightArm;
-            body.bipedLeftArm = leftArm;
+            body.bipedRightArm = ((PartRenderer_SeperatedChild)convertBends(body, PartRenderer_SeperatedChild.class, body.bipedRightArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm);
+            body.bipedLeftArm = ((PartRenderer_SeperatedChild)convertBends(body, PartRenderer_SeperatedChild.class, body.bipedLeftArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedLeftForeArm);
             body.bipedRightLeg = convertBends(body, ModelRendererBends.class, body.bipedRightLeg);
             body.bipedRightLeg.cubeList.clear();
             body.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, par1);
+
             body.bipedLeftLeg = convertBends(body, ModelRendererBends.class, body.bipedLeftLeg);
             body.bipedLeftLeg.cubeList.clear();
             body.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, par1);
+
 
             //body.bipedHead.offsetY -= 12;
             //body.bipedRightArm.offsetY -= 12;
@@ -182,18 +193,23 @@ public class ModelBipedBody {
 
             body.bipedHead.addChild(body.bipedHeadwear);
             body.bipedBody.addChild(body.bipedHead);
-            body.bipedBody.addChild(body.bipedRightArm);//史蒂夫
-            body.bipedBody.addChild(body.bipedLeftArm);//史蒂夫
-            rightArm.source.addChild(bipedRightForeArm);
-            leftArm.source.addChild(bipedLeftForeArm);
+            body.bipedBody.addChild(body.bipedRightArm);
+            body.bipedBody.addChild(body.bipedLeftArm);
+            //body.bipedBody.addChild(body.bipedRightLeg);
+            //body.bipedBody.addChild(body.bipedLeftLeg);
+            body.bipedRightArm.addChild(bipedRightForeArm);
+            body.bipedLeftArm.addChild(bipedLeftForeArm);
             body.bipedRightLeg.addChild(bipedRightForeLeg);
-            body.bipedLeftLeg.addChild(bipedRightForeLeg);
+            body.bipedLeftLeg.addChild(bipedLeftForeLeg);
 
 
-            rightArm.source.offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
-            leftArm.source.offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
+            ((ModelRendererBends)body.bipedRightArm).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
+            ((ModelRendererBends)body.bipedLeftArm).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
             ((ModelRendererBends) body.bipedRightLeg).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
             ((ModelRendererBends) body.bipedLeftLeg).offsetBox_Add(-0.01F, 0.0F, -0.01F).resizeBox(4.02F, 6.0F, 4.02F).updateVertices();
+
+
+
             //System.out.println("edit " + body.getClass().getName());
         } catch (IllegalAccessException exception) {
             throw new RuntimeException(exception);
@@ -387,12 +403,6 @@ public class ModelBipedBody {
     }
     //同步脸部,死亡光环之类
     private static void sync(JinRyuu.JRMCore.entity.ModelBipedBody body) throws IllegalAccessException {
-        /*if (body instanceof ModelBipedDBC){
-            body.bipedBody.addChild(((ModelBipedDBC) body).face1);
-            body.bipedBody.addChild(((ModelBipedDBC) body).face2);
-            body.bipedBody.addChild(((ModelBipedDBC) body).face3);
-
-        }*/
         ArrayList<String> head = new ArrayList<>(Arrays.asList("halo", "Fro", "Fro0", "Fro1", "Fro2", "Fro5", "SaiO", "SaiE", "Nam","face1","face2","face3","face4","face5","face6","bipedHeadg", "bipedHeadt", "bipedHeadv", "bipedHeadgh", "bipedHeadg2", "bipedHeadght", "bipedHeadgt", "bipedHeadgtt", "bipedHeadc7", "bipedHeadc8", "bipedHeadrad", "bipedHeadradl", "bipedHeadradl2", "bipedHeadssj3t", "bipedHeadsg", "bipedHeadst", "bipedHeadsv", "bipedHeadsgh", "bipedHeadssg", "bipedHeadsst", "bipedHeadssv", "bipedHeadssgh"));
         ArrayList<String> rightArm = new ArrayList<>();
         rightArm.add("rightarmshoulder");//GiTurtleMdl
@@ -406,22 +416,15 @@ public class ModelBipedBody {
                 ModelRenderer mr1 = (ModelRenderer) field.get(body);
                 if (mr1 != null) {
                     if(head.contains(field.getName())){
-                        /*if(body.bipedHead.childModels != null){
-                            if(!body.bipedHead.childModels.contains(field.get(body))){
-                                ModelRenderer2 modelRenderer2 = new ModelRenderer2(body,(PartRenderer)((ModelRenderer2)body.bipedHead).source,(ModelRenderer)field.get(body));
-                                field.set(body,modelRenderer2);
-                                body.bipedHead.addChild(modelRenderer2);
+                            if (!(field.get(body) instanceof ModelRenderer2)) {
+                                ModelRenderer2 modelRenderer2 = new ModelRenderer2(body,convertBends(body,ModelRendererBends.class,(ModelRenderer)field.get(body)),true);
+                                body.bipedBody.addChild(modelRenderer2);
+                                field.set(body, modelRenderer2);
                             }
-                        }*/
-                        if(!(field.get(body) instanceof ModelRenderer2)){
-                            ModelRenderer2 modelRenderer2 = (ModelRenderer2) convertBends(body,ModelRenderer2.class, (ModelRenderer) field.get(body));
-                            modelRenderer2.bindTexture = true;
-                            body.bipedBody.addChild(modelRenderer2);
-                            field.set(body,modelRenderer2);
-                        }
-                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedHead);
+                            ((ModelRendererBends) field.get(body)).sync((ModelRendererBends) body.bipedHead);
+
                         //sync(((ModelRendererBends2)field.get(body)), (BodyRenderer) body.bipedBody, (ModelRendererBends) body.bipedHead);
-                        //setOffset(mr1,body.bipedHead);
+                        setOffset(mr1,body.bipedHead);
                     }else if(rightArm.contains(field.getName())){
                         /*if(body.bipedRightArm.childModels != null){
                             if(!body.bipedRightArm.childModels.contains(field.get(body))){
@@ -430,10 +433,12 @@ public class ModelBipedBody {
                                 body.bipedRightArm.addChild(modelRenderer2);
                             }
                         }*/
-                        if(!(field.get(body) instanceof ModelRendererBends)){
-                            field.set(body,convertBends(body,ModelRendererBends.class, (ModelRenderer) field.get(body)));
+                        if (!(field.get(body) instanceof ModelRenderer2)) {
+                            ModelRenderer2 modelRenderer2 = new ModelRenderer2(body,convertBends(body,ModelRendererBends.class,(ModelRenderer)field.get(body)),true);
+                            body.bipedBody.addChild(modelRenderer2);
+                            field.set(body, modelRenderer2);
                         }
-                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedRightArm);
+                        ((ModelRendererBends) field.get(body)).sync((ModelRendererBends) body.bipedRightArm);
                         //sync(((ModelRendererBends)field.get(body)), (BodyRenderer) body.bipedBody, (PartRenderer) ((ModelRenderer2)body.bipedRightArm).source);
                         setOffset(mr1,body.bipedRightArm);
                     }else if(leftArm.contains(field.getName())){
@@ -444,10 +449,12 @@ public class ModelBipedBody {
                                 body.bipedLeftArm.addChild(modelRenderer2);
                             }
                         }*/
-                        if(!(field.get(body) instanceof ModelRendererBends)){
-                            field.set(body,convertBends(body,ModelRendererBends.class, (ModelRenderer) field.get(body)));
+                        if (!(field.get(body) instanceof ModelRenderer2)) {
+                            ModelRenderer2 modelRenderer2 = new ModelRenderer2(body,convertBends(body,ModelRendererBends.class,(ModelRenderer)field.get(body)),true);
+                            body.bipedBody.addChild(modelRenderer2);
+                            field.set(body, modelRenderer2);
                         }
-                        ((ModelRendererBends)field.get(body)).sync((ModelRendererBends) body.bipedLeftArm);
+                        ((ModelRendererBends) field.get(body)).sync((ModelRendererBends) body.bipedLeftArm);
                         //sync(((ModelRendererBends)field.get(body)), (BodyRenderer) body.bipedBody, (PartRenderer) ((ModelRenderer2)body.bipedLeftArm).source);
                         setOffset(mr1,body.bipedLeftArm);
                     }
@@ -490,7 +497,7 @@ public class ModelBipedBody {
 
 
     private static ModelRendererBends convertBends(ModelBase base,Class<? extends ModelRendererBends> cl, ModelRenderer modelRenderer) {
-        if(modelRenderer instanceof ModelRendererBends){
+        if(cl.isAssignableFrom(modelRenderer.getClass())){
             return (ModelRendererBends) modelRenderer;
         }
         JsonObject jsonObject = new JsonParser().parse(gson.toJson(modelRenderer)).getAsJsonObject();
@@ -505,6 +512,7 @@ public class ModelBipedBody {
             jsonObject.addProperty("txOffsetY", jsonObject.get("field_78813_p").getAsInt());
         }
         ModelRendererBends bends = gson.fromJson(jsonObject,cl);
+
         if(bends instanceof ModelRendererBends2){
             ((ModelRendererBends2)bends).rotationPointX2 = modelRenderer.rotationPointX;
             ((ModelRendererBends2)bends).rotationPointY2 = modelRenderer.rotationPointY;
@@ -544,7 +552,7 @@ public class ModelBipedBody {
         mr1.offsetZ = mr2.offsetZ;
     }
 
-    /*public static void renderBody(JinRyuu.JRMCore.entity.ModelBipedBody body, float par2){
+    public static void renderBody(JinRyuu.JRMCore.entity.ModelBipedBody body, float par2){
         float f6;
         if (g <= 1) {
             if (body.isChild) {
@@ -666,7 +674,7 @@ public class ModelBipedBody {
             body.Bbreast2.render(par2);
             GL11.glPopMatrix();
         }
-    }*/
+    }
 
 
 }
