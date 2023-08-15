@@ -32,10 +32,10 @@ public class DBCMoBends {
             if (event.entity instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) event.entity;
                 if (event.renderer instanceof RenderPlayerJBRA) {
-                    if(!(event.renderer.modelArmor instanceof JinRyuu.JRMCore.entity.ModelBipedBody)){
+                    if (!(event.renderer.modelArmor instanceof JinRyuu.JRMCore.entity.ModelBipedBody)) {
                         event.renderer.modelArmor = new JinRyuu.JRMCore.entity.ModelBipedBody(0.5F);
                     }
-                    if(!(event.renderer.modelArmorChestplate instanceof JinRyuu.JRMCore.entity.ModelBipedBody)){
+                    if (!(event.renderer.modelArmorChestplate instanceof JinRyuu.JRMCore.entity.ModelBipedBody)) {
                         event.renderer.modelArmorChestplate = new JinRyuu.JRMCore.entity.ModelBipedBody(1.0F);
                     }
                     Data_Player data = Data_Player.get(player.getEntityId());

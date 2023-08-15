@@ -29,8 +29,8 @@ public class ClassTransformer implements IClassTransformer {
                         }
                     } else if (name.equals("setRotationAngles") || name.equals("func_78087_a")) {
                         return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "setRotationAngles");
-                    } else if(name.equals("renderBody")){
-                        return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,name);
+                    } else if (name.equals("renderBody")) {
+                        return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, name);
                     }
                     return methodVisitor;
                 }
@@ -69,11 +69,11 @@ public class ClassTransformer implements IClassTransformer {
                     MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
                     if (name.equals("func_77043_a") || name.equals("rotateCorpse")) {
                         if (desc.equals("(Lnet/minecraft/client/entity/AbstractClientPlayer;FFF)V")) {
-                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"rotateCorpse");
+                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "rotateCorpse");
                         }
-                    }else if(name.equals("renderFirstPersonArm") || name.equals("func_82441_a")){
-                        if(desc.equals("(Lnet/minecraft/entity/player/EntityPlayer;)V")){
-                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor,"renderFirstPersonArm");
+                    } else if (name.equals("renderFirstPersonArm") || name.equals("func_82441_a")) {
+                        if (desc.equals("(Lnet/minecraft/entity/player/EntityPlayer;)V")) {
+                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "renderFirstPersonArm");
                         }
                     }
                     return methodVisitor;
@@ -147,8 +147,8 @@ public class ClassTransformer implements IClassTransformer {
         }
 
         @Override
-        public void visitCode(){
-            if(methodName.equals("renderBody")) {
+        public void visitCode() {
+            if (methodName.equals("renderBody")) {
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
                 mv.visitVarInsn(Opcodes.FLOAD, 1);
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "renderBody", "(LJinRyuu/JRMCore/entity/ModelBipedBody;F)V", false);
@@ -163,7 +163,7 @@ public class ClassTransformer implements IClassTransformer {
                 switch (methodName) {
                     case "init":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
-                        mv.visitVarInsn(Opcodes.FLOAD,1);
+                        mv.visitVarInsn(Opcodes.FLOAD, 1);
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "init", "(LJinRyuu/JRMCore/entity/ModelBipedBody;F)V", false);
                         break;
                     case "setRotationAngles":
@@ -197,8 +197,8 @@ public class ClassTransformer implements IClassTransformer {
         @Override
         public void visitMethodInsn(int opcode, String owner, String name,
                                     String desc, boolean itf) {
-            if(methodName.equals("offsetTextureQuad")){
-                if(opcode == Opcodes.INVOKEVIRTUAL && owner.equals("java/io/PrintStream") && name.equals("println") && desc.equals("(Ljava/lang/String;)V")){
+            if (methodName.equals("offsetTextureQuad")) {
+                if (opcode == Opcodes.INVOKEVIRTUAL && owner.equals("java/io/PrintStream") && name.equals("println") && desc.equals("(Ljava/lang/String;)V")) {
                     return;
                 }
             }/*else if(methodName.equals("renderHairsV2")){

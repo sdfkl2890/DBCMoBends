@@ -14,22 +14,22 @@ public class ModelRendererBends2 extends ModelRendererBends {
     public float rotationPointX2;
     public float rotationPointY2;
     public float rotationPointZ2;
-    
+
     public float rotateAngleX2;
     public float rotateAngleY2;
     public float rotateAngleZ2;
 
-    public ModelRendererBends2 setRotationPointX2(float par){
+    public ModelRendererBends2 setRotationPointX2(float par) {
         this.rotationPointX2 = par;
         return this;
     }
 
-    public ModelRendererBends2 setRotationPointY2(float par){
+    public ModelRendererBends2 setRotationPointY2(float par) {
         this.rotationPointY2 = par;
         return this;
     }
 
-    public ModelRendererBends2 setRotationPointZ2(float par){
+    public ModelRendererBends2 setRotationPointZ2(float par) {
         this.rotationPointZ2 = par;
         return this;
     }
@@ -42,8 +42,8 @@ public class ModelRendererBends2 extends ModelRendererBends {
         GL11.glNewList(this.displayList, 4864);
         Tessellator tessellator = Tessellator.instance;
 
-        for(int i = 0; i < this.cubeList.size(); ++i) {
-            ((ModelBox)this.cubeList.get(i)).render(tessellator, p_78788_1_);
+        for (int i = 0; i < this.cubeList.size(); ++i) {
+            ((ModelBox) this.cubeList.get(i)).render(tessellator, p_78788_1_);
         }
 
         GL11.glEndList();
@@ -73,8 +73,8 @@ public class ModelRendererBends2 extends ModelRendererBends {
                 }
 
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel) && this.childModels != null) {
-                    for(i = 0; i < this.childModels.size(); ++i) {
-                        ((ModelRenderer)this.childModels.get(i)).render(p_78785_1_);
+                    for (i = 0; i < this.childModels.size(); ++i) {
+                        ((ModelRenderer) this.childModels.get(i)).render(p_78785_1_);
                     }
                 }
             } else {
@@ -88,8 +88,8 @@ public class ModelRendererBends2 extends ModelRendererBends {
                 }
 
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel) && this.childModels != null) {
-                    for(i = 0; i < this.childModels.size(); ++i) {
-                        ((ModelRenderer)this.childModels.get(i)).render(p_78785_1_);
+                    for (i = 0; i < this.childModels.size(); ++i) {
+                        ((ModelRenderer) this.childModels.get(i)).render(p_78785_1_);
                     }
                 }
 
@@ -119,8 +119,8 @@ public class ModelRendererBends2 extends ModelRendererBends {
             }
 
             if ((this.showChildIfHidden || !this.isHidden & this.showModel) && this.childModels != null) {
-                for(i = 0; i < this.childModels.size(); ++i) {
-                    ((ModelRenderer)this.childModels.get(i)).render(p_78785_1_);
+                for (i = 0; i < this.childModels.size(); ++i) {
+                    ((ModelRenderer) this.childModels.get(i)).render(p_78785_1_);
                 }
             }
 
@@ -130,45 +130,34 @@ public class ModelRendererBends2 extends ModelRendererBends {
         GL11.glTranslatef(-this.offsetX, -this.offsetY, -this.offsetZ);
     }
 
-    @SideOnly(Side.CLIENT)
-    public void postRender(float p_78794_1_)
-    {
-        if (!this.isHidden)
-        {
-            if (this.showModel)
-            {
-                if (!this.compiled)
-                {
+    /*@SideOnly(Side.CLIENT)
+    public void postRender(float p_78794_1_) {
+        if (!this.isHidden) {
+            if (this.showModel) {
+                if (!this.compiled) {
                     this.compileDisplayList(p_78794_1_);
                 }
 
-                if (this.rotateAngleX2 == 0.0F && this.rotateAngleY2 == 0.0F && this.rotateAngleZ2 == 0.0F)
-                {
-                    if (this.rotationPointX2 != 0.0F || this.rotationPointY2 != 0.0F || this.rotationPointZ2 != 0.0F)
-                    {
+                if (this.rotateAngleX2 == 0.0F && this.rotateAngleY2 == 0.0F && this.rotateAngleZ2 == 0.0F) {
+                    if (this.rotationPointX2 != 0.0F || this.rotationPointY2 != 0.0F || this.rotationPointZ2 != 0.0F) {
                         GL11.glTranslatef(this.rotationPointX2 * p_78794_1_, this.rotationPointY2 * p_78794_1_, this.rotationPointZ2 * p_78794_1_);
                     }
-                }
-                else
-                {
+                } else {
                     GL11.glTranslatef(this.rotationPointX2 * p_78794_1_, this.rotationPointY2 * p_78794_1_, this.rotationPointZ2 * p_78794_1_);
 
-                    if (this.rotateAngleZ2 != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleZ2 * (180F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
+                    if (this.rotateAngleZ2 != 0.0F) {
+                        GL11.glRotatef(this.rotateAngleZ2 * (180F / (float) Math.PI), 0.0F, 0.0F, 1.0F);
                     }
 
-                    if (this.rotateAngleY2 != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleY2 * (180F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    if (this.rotateAngleY2 != 0.0F) {
+                        GL11.glRotatef(this.rotateAngleY2 * (180F / (float) Math.PI), 0.0F, 1.0F, 0.0F);
                     }
 
-                    if (this.rotateAngleX2 != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleX2 * (180F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    if (this.rotateAngleX2 != 0.0F) {
+                        GL11.glRotatef(this.rotateAngleX2 * (180F / (float) Math.PI), 1.0F, 0.0F, 0.0F);
                     }
                 }
             }
         }
-    }
+    }*/
 }

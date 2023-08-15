@@ -13,15 +13,15 @@ public class ModelRendererJBRA2 extends ModelRendererJBRA {
     protected static int textureId;
     protected static FloatBuffer colors;
 
-    public ModelRendererJBRA2(ModelBase modelBase,ModelRendererJBRA jbra) {
+    public ModelRendererJBRA2(ModelBase modelBase, ModelRendererJBRA jbra) {
         super(modelBase);
         modelBase.boxList.remove(this);
         this.source = jbra;
     }
 
-    public void render(float par1){
+    public void render(float par1) {
         //System.out.println("render jbra");
-        if(LWJGLTools.getCurrentBindingTexture() != textureId || LWJGLTools.getCurrentColorRGBA().compareTo(colors) != 0) {
+        if (LWJGLTools.getCurrentBindingTexture() != textureId || LWJGLTools.getCurrentColorRGBA().compareTo(colors) != 0) {
             textureId = LWJGLTools.getCurrentBindingTexture();
             colors = LWJGLTools.getCurrentColorRGBA();
         }
@@ -37,8 +37,8 @@ public class ModelRendererJBRA2 extends ModelRendererJBRA {
         this.render = true;
     }
 
-    public void render2(float par1){
-        if(this.render) {
+    public void render2(float par1) {
+        if (this.render) {
             source.render(par1);
             this.render = false;
         }

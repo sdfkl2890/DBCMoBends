@@ -12,7 +12,6 @@ import static xiaobang.ModelBipedBody.modelBendsPlayer;
 public class Editor {
 
 
-
     public static void rotateCorpse(AbstractClientPlayer player) {
         if (player.isEntityAlive() && player.isPlayerSleeping()) {
             GL11.glRotatef(player.getBedOrientationInDegrees(), 0.0F, 1.0F, 0.0F);
@@ -24,7 +23,7 @@ public class Editor {
         }
     }
 
-    public static void renderFirstPersonArm(EntityPlayer player){
+    public static void renderFirstPersonArm(EntityPlayer player) {
 
     }
 
