@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 
-public class ModelRendererBends2 extends ModelRendererBends {
+public class ModelRendererBends2 extends ModelRendererBends {//一个完全离经叛道的ModelRenderer
     public float rotationPointX2;
     public float rotationPointY2;
     public float rotationPointZ2;
@@ -129,35 +129,4 @@ public class ModelRendererBends2 extends ModelRendererBends {
 
         GL11.glTranslatef(-this.offsetX, -this.offsetY, -this.offsetZ);
     }
-
-    /*@SideOnly(Side.CLIENT)
-    public void postRender(float p_78794_1_) {
-        if (!this.isHidden) {
-            if (this.showModel) {
-                if (!this.compiled) {
-                    this.compileDisplayList(p_78794_1_);
-                }
-
-                if (this.rotateAngleX2 == 0.0F && this.rotateAngleY2 == 0.0F && this.rotateAngleZ2 == 0.0F) {
-                    if (this.rotationPointX2 != 0.0F || this.rotationPointY2 != 0.0F || this.rotationPointZ2 != 0.0F) {
-                        GL11.glTranslatef(this.rotationPointX2 * p_78794_1_, this.rotationPointY2 * p_78794_1_, this.rotationPointZ2 * p_78794_1_);
-                    }
-                } else {
-                    GL11.glTranslatef(this.rotationPointX2 * p_78794_1_, this.rotationPointY2 * p_78794_1_, this.rotationPointZ2 * p_78794_1_);
-
-                    if (this.rotateAngleZ2 != 0.0F) {
-                        GL11.glRotatef(this.rotateAngleZ2 * (180F / (float) Math.PI), 0.0F, 0.0F, 1.0F);
-                    }
-
-                    if (this.rotateAngleY2 != 0.0F) {
-                        GL11.glRotatef(this.rotateAngleY2 * (180F / (float) Math.PI), 0.0F, 1.0F, 0.0F);
-                    }
-
-                    if (this.rotateAngleX2 != 0.0F) {
-                        GL11.glRotatef(this.rotateAngleX2 * (180F / (float) Math.PI), 1.0F, 0.0F, 0.0F);
-                    }
-                }
-            }
-        }
-    }*/
 }

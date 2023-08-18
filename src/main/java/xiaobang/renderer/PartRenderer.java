@@ -12,19 +12,20 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
+import xiaobang.ModelBipedBody;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import static JinRyuu.JRMCore.entity.ModelBipedBody.g;
 
-public class PartRenderer extends ModelRendererBends2 {
+public class PartRenderer extends ModelRendererBends2 {//ModelRenderBends
     public FloatBuffer matrix;
     protected int displayList;
     public ModelBase modelBase;
     public String part;
 
-    //public ArrayList<ModelRenderer2> thisTicksToRender = new ArrayList<>();
+
     public PartRenderer(ModelBase argModel, int argTexOffsetX, int argTexOffsetY) {
         super(argModel, argTexOffsetX, argTexOffsetY);
         this.modelBase = argModel;
@@ -51,6 +52,7 @@ public class PartRenderer extends ModelRendererBends2 {
         this.compiled = true;
     }
 
+
     public void renderChildModels(float par1) {
         if (this.childModels != null) {
             for (int i = childModels.size() - 1; i >= 0; i--) {
@@ -70,7 +72,7 @@ public class PartRenderer extends ModelRendererBends2 {
                 GL11.glScalef((0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F), 0.5F + 0.5F / ModelBipedDBC.f, (0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F));
                 GL11.glTranslatef(0.0F, (ModelBipedDBC.f - 1.0F) / ModelBipedDBC.f * (2.0F - ((ModelBipedDBC.f >= 1.5F && ModelBipedDBC.f <= 2.0F) ? ((2.0F - ModelBipedDBC.f) / 2.5F) : ((ModelBipedDBC.f < 1.5F && ModelBipedDBC.f >= 1.0F) ? ((ModelBipedDBC.f * 2.0F - 2.0F) * 0.2F) : 0.0F))), 0.0F);
                 if (ModelRendererJBRA2.textureId != 0) {
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);//此处绑定了透明材质，使得腿部材质出现，为毛啊
                 }
                 if (ModelRendererJBRA2.colors != null) {
                     GL11.glColor4f(ModelRendererJBRA2.colors.get(0), ModelRendererJBRA2.colors.get(1), ModelRendererJBRA2.colors.get(2), ModelRendererJBRA2.colors.get(3));
@@ -79,9 +81,8 @@ public class PartRenderer extends ModelRendererBends2 {
                 for (int face = 0; face < 56; face++) {
                     ModelRendererJBRA jbra = dbc.hairall[face * 4];
                     if (jbra instanceof ModelRendererJBRA2) {
-                        //System.out.println("render2 jbra");
-                        //System.out.println("num " + (hossz + face * 4));
-                        ((ModelRendererJBRA2) jbra).render2(par1);
+
+                        ((ModelRendererJBRA2) jbra).render2(par1);//渲染自定义头发
                     }
                 }
 

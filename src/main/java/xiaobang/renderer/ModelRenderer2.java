@@ -28,8 +28,8 @@ public class ModelRenderer2 extends ModelRendererBends {
 
         //xiaobang.ModelBipedBody.setOffset(source,part);
         GL11.glPushMatrix();
-        LWJGLTools.addMatrix(part.matrix);
-        GL11.glTranslatef(0f,0f,-0.0886f);
+        LWJGLTools.addMatrix(part.matrix);//将模型视图矩阵叠加到当前
+        GL11.glTranslatef(0f,0f,-0.0886f);//模型前移
         source.render(par1);
         GL11.glPopMatrix();
     }

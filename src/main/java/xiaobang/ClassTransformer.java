@@ -1,7 +1,6 @@
 package xiaobang;
 
 
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
@@ -11,7 +10,7 @@ public class ClassTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if ("JinRyuu.JRMCore.entity.ModelBipedBody".equals(transformedName)) {//修改init,setRotationAngles方法,加上bipedRightForeArm,bipedLeftForeArm,bipedRightForeLeg,bipedLeftForeLeg属性
+        if ("JinRyuu.JRMCore.entity.ModelBipedBody".equals(transformedName)) {//修改init,setRotationAngles,renderBody方法,加上bipedRightForeArm,bipedLeftForeArm,bipedRightForeLeg,bipedLeftForeLeg属性
             ClassReader cr = new ClassReader(basicClass);
             ClassNode cn = new ClassNode();
             cr.accept(cn, 0);
@@ -71,10 +70,6 @@ public class ClassTransformer implements IClassTransformer {
                         if (desc.equals("(Lnet/minecraft/client/entity/AbstractClientPlayer;FFF)V")) {
                             return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "rotateCorpse");
                         }
-                    } else if (name.equals("renderFirstPersonArm") || name.equals("func_82441_a")) {
-                        if (desc.equals("(Lnet/minecraft/entity/player/EntityPlayer;)V")) {
-                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "renderFirstPersonArm");
-                        }
                     }
                     return methodVisitor;
                 }
@@ -96,43 +91,7 @@ public class ClassTransformer implements IClassTransformer {
                 }
             }, ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
-        }/*else if("JinRyuu.JBRA.ModelBipedDBC".equals(transformedName)){
-            ClassReader cr = new ClassReader(basicClass);
-            ClassNode cn = new ClassNode();
-            cr.accept(cn, 0);
-            ClassWriter cw = new ClassWriter(cr, 0);
-            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
-                @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-                    MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-                    if (name.equals("renderHairsV2")) {
-                        if(desc.equals("(FLjava/lang/String;FIIIILJinRyuu/JBRA/RenderPlayerJBRA;Lnet/minecraft/client/entity/AbstractClientPlayer;)V")) {
-                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, name);
-                        }
-                    }
-                    return methodVisitor;
-                }
-            }, ClassReader.EXPAND_FRAMES);
-            return cw.toByteArray();
-        }else if("net.minecraft.client.renderer.texture.TextureUtil".equals(transformedName)){
-            ClassReader cr = new ClassReader(basicClass);
-            ClassNode cn = new ClassNode();
-            cr.accept(cn, 0);
-            ClassWriter cw = new ClassWriter(cr, 0);
-            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
-                @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-                    MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-                    if (name.equals("func_94277_a") || name.equals("bindTexture") || name.equals("b")) {
-                        if(desc.equals("(I)V")) {
-                            return new MyMethodAdapter(Opcodes.ASM5, methodVisitor, "bindTexture");
-                        }
-                    }
-                    return methodVisitor;
-                }
-            }, ClassReader.EXPAND_FRAMES);
-            return cw.toByteArray();
-        }*/
+        }
         return basicClass;
     }
 
@@ -148,7 +107,7 @@ public class ClassTransformer implements IClassTransformer {
 
         @Override
         public void visitCode() {
-            if (methodName.equals("renderBody")) {
+            if (methodName.equals("renderBody")) {//将整个方法指向xiaobang/ModelBipedBody下的renderBody方法
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
                 mv.visitVarInsn(Opcodes.FLOAD, 1);
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/ModelBipedBody", "renderBody", "(LJinRyuu/JRMCore/entity/ModelBipedBody;F)V", false);
@@ -159,7 +118,7 @@ public class ClassTransformer implements IClassTransformer {
 
         @Override
         public void visitInsn(int opcode) {
-            if (opcode == Opcodes.ARETURN || opcode == Opcodes.RETURN) {
+            if (opcode == Opcodes.ARETURN || opcode == Opcodes.RETURN) {//在方法的结束插入代码
                 switch (methodName) {
                     case "init":
                         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -181,10 +140,6 @@ public class ClassTransformer implements IClassTransformer {
                         mv.visitVarInsn(Opcodes.ALOAD, 1);
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "rotateCorpse", "(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", false);
                         break;
-                    case "renderFirstPersonArm":
-                        mv.visitVarInsn(Opcodes.ALOAD, 1);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "renderFirstPersonArm", "(Lnet/minecraft/entity/player/EntityPlayer;)V", false);
-                        break;
                     /*case "bindTexture":
                         mv.visitVarInsn(Opcodes.ILOAD, 0);
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "bindTexture", "(I)V", false);
@@ -197,23 +152,11 @@ public class ClassTransformer implements IClassTransformer {
         @Override
         public void visitMethodInsn(int opcode, String owner, String name,
                                     String desc, boolean itf) {
-            if (methodName.equals("offsetTextureQuad")) {
+            if (methodName.equals("offsetTextureQuad")) {//关闭该方法里面的System.out.println输出
                 if (opcode == Opcodes.INVOKEVIRTUAL && owner.equals("java/io/PrintStream") && name.equals("println") && desc.equals("(Ljava/lang/String;)V")) {
                     return;
                 }
-            }/*else if(methodName.equals("renderHairsV2")){
-                if(opcode == Opcodes.INVOKESTATIC && owner.equals("org/lwjgl/opengl/GL11") && name.equals("glPushMatrix") && desc.equals("()V")){
-                    times++;
-                    if (times == 3){
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC,"org/lwjgl/opengl/GL11","glPopMatrix","()V",false);
-                        super.visitMethodInsn(opcode, owner, name, desc, itf);
-                        mv.visitVarInsn(Opcodes.ALOAD,0);
-                        mv.visitVarInsn(Opcodes.FLOAD,1);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC,"xiaobang/Editor","hairRotate","(LJinRyuu/JBRA/ModelBipedDBC;F)V",false);
-                        return;
-                    }
-                }
-            }*/
+            }
             super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
 

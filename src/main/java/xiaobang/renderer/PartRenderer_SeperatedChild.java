@@ -4,7 +4,7 @@ import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.minecraft.client.model.ModelBase;
 import org.lwjgl.opengl.GL11;
 
-public class PartRenderer_SeperatedChild extends PartRenderer {
+public class PartRenderer_SeperatedChild extends PartRenderer {//ModelRendererBends_SeperatedChild
     ModelRendererBends momModel;
     ModelRendererBends seperatedModel;
 

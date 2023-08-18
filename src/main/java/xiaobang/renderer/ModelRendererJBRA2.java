@@ -6,12 +6,12 @@ import xiaobang.LWJGLTools;
 
 import java.nio.FloatBuffer;
 
-public class ModelRendererJBRA2 extends ModelRendererJBRA {
+public class ModelRendererJBRA2 extends ModelRendererJBRA {//自定义头发
     public ModelRendererJBRA source;
     private boolean render;
 
-    protected static int textureId;
-    protected static FloatBuffer colors;
+    public static int textureId;
+    public static FloatBuffer colors;
 
     public ModelRendererJBRA2(ModelBase modelBase, ModelRendererJBRA jbra) {
         super(modelBase);

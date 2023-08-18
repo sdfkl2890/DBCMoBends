@@ -33,10 +33,10 @@ public class DBCMoBends {
                 EntityPlayer player = (EntityPlayer) event.entity;
                 if (event.renderer instanceof RenderPlayerJBRA) {
                     if (!(event.renderer.modelArmor instanceof JinRyuu.JRMCore.entity.ModelBipedBody)) {
-                        event.renderer.modelArmor = new JinRyuu.JRMCore.entity.ModelBipedBody(0.5F);
+                        event.renderer.modelArmor = new JinRyuu.JRMCore.entity.ModelBipedBody(0.5F);//这可能没有必要
                     }
                     if (!(event.renderer.modelArmorChestplate instanceof JinRyuu.JRMCore.entity.ModelBipedBody)) {
-                        event.renderer.modelArmorChestplate = new JinRyuu.JRMCore.entity.ModelBipedBody(1.0F);
+                        event.renderer.modelArmorChestplate = new JinRyuu.JRMCore.entity.ModelBipedBody(1.0F);//这可能没有必要
                     }
                     Data_Player data = Data_Player.get(player.getEntityId());
                     float f2 = interpolateRotation(player.prevRenderYawOffset, player.renderYawOffset, event.partialRenderTick);
@@ -46,7 +46,7 @@ public class DBCMoBends {
                         rotateSuperCorpse(player, f2, event.partialRenderTick);
                         GL11.glTranslatef(0.0F, -24.0F * f5 - 0.0078125F - 2.0F * f5, 0.0F);
                         GL11.glScalef(f5, f5, f5);
-                        data.swordTrail.render(ModelBipedBody.modelBendsPlayer);
+                        data.swordTrail.render(ModelBipedBody.modelBendsPlayer);//渲染剑光
                         GL11.glPopMatrix();
                     }
                 }

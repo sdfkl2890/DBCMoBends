@@ -3,7 +3,6 @@ package xiaobang;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 
 import static xiaobang.ModelBipedBody.modelBendsPlayer;
@@ -23,9 +22,6 @@ public class Editor {
         }
     }
 
-    public static void renderFirstPersonArm(EntityPlayer player) {
-
-    }
 
 
 }

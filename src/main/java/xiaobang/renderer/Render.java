@@ -2,7 +2,7 @@ package xiaobang.renderer;
 
 import java.nio.FloatBuffer;
 
-public class Render {
+public class Render {//一个方便存储当前矩阵状态的类
     private final int textureId;
     private final FloatBuffer colors;
 

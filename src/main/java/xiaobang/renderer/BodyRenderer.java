@@ -1,12 +1,16 @@
 package xiaobang.renderer;
 
 import JinRyuu.JBRA.ModelBipedDBC;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
 
 import java.nio.FloatBuffer;
+import java.util.Iterator;
 
 public class BodyRenderer extends PartRenderer {
 
@@ -26,14 +30,19 @@ public class BodyRenderer extends PartRenderer {
         int textureId = LWJGLTools.getCurrentBindingTexture();
         FloatBuffer colors = LWJGLTools.getCurrentColorRGBA();
         if (this.childModels != null) {
-            for (int i = childModels.size() - 1; i >= 0; i--) {
-                if(childModels.get(i) instanceof ModelRenderer2.ModelRenderer3){
-                    ((ModelRenderer2.ModelRenderer3) childModels.get(i)).render2(par1);
-                    GL11.glColor4f(colors.get(0),colors.get(1),colors.get(2),colors.get(3));
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D,textureId);
-                } else if (childModels.get(i) instanceof ModelRenderer) {
-                    ((ModelRenderer) childModels.get(i)).render(par1);
+            int i = 0;
+            for(Iterator it = childModels.iterator();it.hasNext();){
+                Object obj = it.next();
+                i++;
+                if(obj instanceof ModelRenderer2.ModelRenderer3){
+                    ((ModelRenderer2.ModelRenderer3) obj).render2(par1);
+                    //System.out.println("modelRenderer3 " + i);
+                } else if (obj instanceof ModelRenderer) {
+                    ((ModelRenderer) obj).render(par1);
+                    //System.out.println("modelRenderer " + i);
                 }
+                GL11.glColor4f(colors.get(0),colors.get(1),colors.get(2),colors.get(3));
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D,textureId);
             }
         }
         if (modelBase instanceof ModelBipedDBC) {
@@ -46,8 +55,9 @@ public class BodyRenderer extends PartRenderer {
                 }
             }
         }
-        //GL11.glColor4f(colors.get(0),colors.get(1),colors.get(2),colors.get(3));
-        //GL11.glBindTexture(GL11.GL_TEXTURE_2D,textureId);
+
+        head.render(par1);//渲染头部，以便腿部衣服材质可以正常显示,详见PartRenderer
+
     }
 
 
@@ -74,7 +84,7 @@ public class BodyRenderer extends PartRenderer {
                 }
                 matrix = LWJGLTools.getCurrentModelViewMatrix();
             } else {
-                if (this.rotationPointY2 == 0.0F) {
+                if (this.rotationPointY2 == 0.0F) {//调整旋转原点
                     GL11.glTranslatef(this.rotationPointX * p_78785_1_, this.rotationPointY * p_78785_1_, this.rotationPointZ * p_78785_1_);
                 } else {
                     GL11.glTranslatef(this.rotationPointX * p_78785_1_, this.rotationPointY2 * p_78785_1_, this.rotationPointZ * p_78785_1_);
@@ -86,7 +96,7 @@ public class BodyRenderer extends PartRenderer {
                 if (!this.isHidden & this.showModel) {
                     GL11.glCallList(this.displayList);
                 }
-                if (this.rotationPointY2 != 0.0F) {
+                if (this.rotationPointY2 != 0.0F) {//渲染子模型时旋转原点复原
                     GL11.glTranslatef(0, -this.rotationPointY2 * p_78785_1_, 0);
                     GL11.glTranslatef(0, this.rotationPointY * p_78785_1_, 0);
                 }
