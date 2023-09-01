@@ -1,24 +1,18 @@
 package xiaobang;
 
-import JinRyuu.JBRA.DBC_GiTurtleMdl;
-import JinRyuu.JBRA.GiTurtleMdl;
-import JinRyuu.JBRA.ModelBipedDBC;
+import JinRyuu.DragonBC.common.DBCKiTech;
+import JinRyuu.JRMCore.JRMCoreConfig;
 import JinRyuu.JRMCore.JRMCoreH;
-import com.google.gson.*;
-import cpw.mods.fml.relauncher.ReflectionHelper;
+import joptsimple.internal.Strings;
 import net.gobbob.mobends.AnimatedEntity;
-import net.gobbob.mobends.client.model.ModelBoxBends;
 import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
-import net.gobbob.mobends.client.renderer.entity.RenderBendsPlayer;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.BendsVar;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -27,6 +21,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
@@ -37,7 +32,6 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 import static JinRyuu.JRMCore.entity.ModelBipedBody.*;
 
@@ -74,51 +68,6 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
         }
     }
 
-    //自定义初始化Gson
-    static Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
-        @Override
-        public boolean shouldSkipField(FieldAttributes fieldAttributes) {//对以下属性不进行序列化
-            List<String> list = new ArrayList<>();
-            list.add("field_78812_q");
-            list.add("field_78810_s");
-            list.add("field_78811_r");
-            list.add("displayList");
-            list.add("compiled");
-            list.add("baseModel");
-            list.add("cubeList");
-            list.add("childModels");
-            return list.contains(fieldAttributes.getName());
-        }
-
-        @Override
-        public boolean shouldSkipClass(Class<?> clazz) {
-            return false;
-        }
-    }).create();
-
-    private static void setField(Field field, Object instance, Object value) throws IllegalAccessException {
-        field.setAccessible(true);
-        field.set(instance, value);
-    }
-
-    private static int containsPlayer(String name) {//判断当前客户端是否存在玩家
-        if (JRMCoreH.plyrs != null && JRMCoreH.plyrs.length > 0 && JRMCoreH.dnn(2) && JRMCoreH.dnn(10)) {
-            for (int i = 0; i < JRMCoreH.plyrs.length; i++) {
-                if (JRMCoreH.plyrs[i].equals(name)) {
-                    return i;
-                }
-            }
-        }
-
-        return 9527;
-    }
-
-    private static void setRotation(ModelRenderer model, float x, float y, float z) {
-        model.rotateAngleX = x;
-        model.rotateAngleY = y;
-        model.rotateAngleZ = z;
-    }
-
     public static void init(JinRyuu.JRMCore.entity.ModelBipedBody body, float par1) {//JinRyuu.JRMCore.entity.ModelBipedBody初始化方法插入
         try {
             System.out.println(body.getClass().getName() + par1);
@@ -144,12 +93,12 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
             bipedLeftForeLeg.setRotationPoint(0.0F, 6.0F, -2.0F);
             bipedLeftForeLeg.getBox().offsetTextureQuad(bipedLeftForeLeg, 3, 0.0F, -6.0F);
 
-            setField(rightForeArm, body, bipedRightForeArm);
-            setField(leftForeArm, body, bipedLeftForeArm);
-            setField(rightForeLeg, body, bipedRightForeLeg);
-            setField(leftForeLeg, body, bipedLeftForeLeg);
+            Utils.setField(rightForeArm, body, bipedRightForeArm);
+            Utils.setField(leftForeArm, body, bipedLeftForeArm);
+            Utils.setField(rightForeLeg, body, bipedRightForeLeg);
+            Utils.setField(leftForeLeg, body, bipedLeftForeLeg);
 
-            BodyRenderer bodyRenderer = ((BodyRenderer) convertBends(body, BodyRenderer.class, body.bipedBody));
+            BodyRenderer bodyRenderer = ((BodyRenderer) Utils.convertBends(body, BodyRenderer.class, body.bipedBody));
             bodyRenderer.setRotationPointY2(12.0F);//设置旋转原点为12.0F，但子模型仍然使用旋转原点0.0F
             body.bipedBody = bodyRenderer;
             //body.bipedBody.rotationPointY = 0;
@@ -169,31 +118,33 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
             ((BodyRenderer)body.bipedBody).leftArm = (PartRenderer) leftArm.source;*/
 
 
-            body.bipedHead = convertBends(body, PartRenderer.class, body.bipedHead);
+            body.bipedHead = Utils.convertBends(body, PartRenderer.class, body.bipedHead);
 
             bodyRenderer.head = (PartRenderer) body.bipedHead;
             bodyRenderer.head.part = "head";
-            body.bipedHeadwear = convertBends(body, ModelRendererBends.class, body.bipedHeadwear);
-            body.bipedHeadwear.cubeList.clear();
-            body.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, par1 + 0.5F);
 
-            body.bipedRightArm = ((PartRenderer_SeperatedChild) convertBends(body, PartRenderer_SeperatedChild.class, body.bipedRightArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm);
+
+            body.bipedHeadwear = Utils.convertBends(body, ModelRendererBends.class, body.bipedHeadwear);
+            body.bipedHeadwear.cubeList.clear();
+            body.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F,8,8,8, par1 + 0.5F);
+
+            body.bipedRightArm = ((PartRenderer_SeperatedChild) Utils.convertBends(body, PartRenderer_SeperatedChild.class, body.bipedRightArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm);
             body.bipedRightArm.cubeList.clear();
             body.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 6, 4, par1);
             bodyRenderer.rightArm = (PartRenderer) body.bipedRightArm;
-            body.bipedLeftArm = ((PartRenderer_SeperatedChild) convertBends(body, PartRenderer_SeperatedChild.class, body.bipedLeftArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedLeftForeArm);
+            body.bipedLeftArm = ((PartRenderer_SeperatedChild) Utils.convertBends(body, PartRenderer_SeperatedChild.class, body.bipedLeftArm)).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedLeftForeArm);
             body.bipedLeftArm.cubeList.clear();
             body.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 6, 4, par1);
             bodyRenderer.leftArm = (PartRenderer) body.bipedLeftArm;
-            body.bipedRightLeg = convertBends(body, PartRenderer.class, body.bipedRightLeg);
+            body.bipedRightLeg = Utils.convertBends(body, PartRenderer.class, body.bipedRightLeg);
             body.bipedRightLeg.cubeList.clear();
             body.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, par1);
 
-            bodyRenderer.rightLeg = (PartRenderer)body.bipedRightLeg;
-            body.bipedLeftLeg = convertBends(body, PartRenderer.class, body.bipedLeftLeg);
+            bodyRenderer.rightLeg = (PartRenderer) body.bipedRightLeg;
+            body.bipedLeftLeg = Utils.convertBends(body, PartRenderer.class, body.bipedLeftLeg);
             body.bipedLeftLeg.cubeList.clear();
             body.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, par1);
-            bodyRenderer.leftLeg = (PartRenderer)body.bipedLeftLeg;
+            bodyRenderer.leftLeg = (PartRenderer) body.bipedLeftLeg;
 
             //body.bipedHead.offsetY -= 12;
             //body.bipedRightArm.offsetY -= 12;
@@ -246,7 +197,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 }
 
                 ((ModelRendererBends) modelBendsPlayer.bipedHead).sync(data.head);
-                ((ModelRendererBends) modelBendsPlayer.bipedHeadwear).sync(data.headwear);
+                //((ModelRendererBends) modelBendsPlayer.bipedHeadwear).sync(data.headwear);
                 ((ModelRendererBends) modelBendsPlayer.bipedBody).sync(data.body);
                 ((ModelRendererBends) modelBendsPlayer.bipedRightArm).sync(data.rightArm);
                 ((ModelRendererBends) modelBendsPlayer.bipedLeftArm).sync(data.leftArm);
@@ -262,16 +213,12 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 modelBendsPlayer.swordTrail = data.swordTrail;
                 if (Data_Player.get(argEntity.getEntityId()).canBeUpdated()) {
 
-                    /*((PartRenderer)body.bipedBody).thisTicksToRender.clear();
-                    ((PartRenderer)((ModelRenderer2)body.bipedHead).source).thisTicksToRender.clear();
-                    ((PartRenderer)((ModelRenderer2)body.bipedRightArm).source).thisTicksToRender.clear();
-                    ((PartRenderer)((ModelRenderer2)body.bipedLeftArm).source).thisTicksToRender.clear();*/
 
                     modelBendsPlayer.renderOffset.setSmooth(new Vector3f(0.0F, -1.0F, 0.0F), 0.5F);
                     modelBendsPlayer.renderRotation.setSmooth(new Vector3f(0.0F, 0.0F, 0.0F), 0.5F);
                     modelBendsPlayer.renderItemRotation.setSmooth(new Vector3f(0.0F, 0.0F, 0.0F), 0.5F);
                     ((ModelRendererBends) modelBendsPlayer.bipedHead).resetScale();
-                    ((ModelRendererBends) modelBendsPlayer.bipedHeadwear).resetScale();
+                    //((ModelRendererBends) modelBendsPlayer.bipedHeadwear).resetScale();
                     ((ModelRendererBends) modelBendsPlayer.bipedBody).resetScale();
                     ((ModelRendererBends) modelBendsPlayer.bipedRightArm).resetScale();
                     ((ModelRendererBends) modelBendsPlayer.bipedLeftArm).resetScale();
@@ -337,7 +284,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                     } else if (JinRyuu.JRMCore.i.ExtendedPlayer.get((EntityPlayer) argEntity).getBlocking() == 2) {
                         BendsPack.animate(modelBendsPlayer, "player", "instantTransmissionON");//瞬间移动
                     }
-                    int i = containsPlayer(argEntity.getCommandSenderName());
+                    int i = Utils.containsPlayer(argEntity.getCommandSenderName());
                     if (i != 9527) {
                         if (JRMCoreH.StusEfctsClient(7, i)) {
                             BendsPack.animate(modelBendsPlayer, "player", "swoop");//俯冲
@@ -361,6 +308,12 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                         }
                     }
 
+                    boolean isNotFused = !JRMCoreH.isFused(argEntity);
+                    boolean isFusionSelectedAvailable = (JRMCoreH.PlyrSettingsB((EntityPlayer) argEntity,4) && isNotFused);
+                    if(isFusionSelectedAvailable && JRMCoreConfig.fuzn){//融合,fusion+变身条进度
+                        BendsPack.animate(modelBendsPlayer, "player", "fusion" + JRMCoreH.TransSaiCurRg);
+                    }
+
                     if (Minecraft.getMinecraft().thePlayer.getEntityId() == data.entityID) {
                         for (String key : keys.keySet()) {
                             if (Keyboard.isKeyDown(keys.get(key))) {//键盘按键触发
@@ -369,10 +322,10 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                         }
                     }
 
-                    //((ModelRendererBends)modelBendsPlayer.bipedBody).pre_rotation = new SmoothVector3f();
+                    //((ModelRendererBends)modelBendsPlayer.bipedBody).rotation = new SmoothVector3f();
 
                     ((ModelRendererBends) modelBendsPlayer.bipedHead).update(data.ticksPerFrame);
-                    ((ModelRendererBends) modelBendsPlayer.bipedHeadwear).update(data.ticksPerFrame);
+                    //((ModelRendererBends) modelBendsPlayer.bipedHeadwear).update(data.ticksPerFrame);
                     ((ModelRendererBends) modelBendsPlayer.bipedBody).update(data.ticksPerFrame);
                     ((ModelRendererBends) modelBendsPlayer.bipedLeftArm).update(data.ticksPerFrame);
                     ((ModelRendererBends) modelBendsPlayer.bipedRightArm).update(data.ticksPerFrame);
@@ -392,7 +345,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 data.syncModelInfo(modelBendsPlayer);
 
                 ((ModelRendererBends) body.bipedHead).sync(data.head);
-                ((ModelRendererBends) body.bipedHeadwear).sync(data.headwear);
+                //((ModelRendererBends) body.bipedHeadwear).sync(data.headwear);
                 ((ModelRendererBends) body.bipedBody).sync(data.body);
                 ((ModelRendererBends) body.bipedRightArm).sync(data.rightArm);
                 ((ModelRendererBends) body.bipedLeftArm).sync(data.leftArm);
@@ -413,7 +366,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
 
     //同步脸部,死亡光环之类
     private static void sync(JinRyuu.JRMCore.entity.ModelBipedBody modelBipedBody) throws IllegalAccessException {
-        ArrayList<String> head = new ArrayList<>(Arrays.asList("Fro", "Fro0", "Fro1", "Fro2", "Fro5", "SaiO", "SaiE", "Nam","face1","face2","face3", "face4", "face5", "face6", "bipedHeadg", "bipedHeadt", "bipedHeadv", "bipedHeadgh", "bipedHeadg2", "bipedHeadght", "bipedHeadgt", "bipedHeadgtt", "bipedHeadc7", "bipedHeadc8", "bipedHeadrad", "bipedHeadradl", "bipedHeadradl2", "bipedHeadssj3t", "bipedHeadsg", "bipedHeadst", "bipedHeadsv", "bipedHeadsgh", "bipedHeadssg", "bipedHeadsst", "bipedHeadssv", "bipedHeadssgh"));
+        ArrayList<String> head = new ArrayList<>(Arrays.asList("Fro", "Fro0", "Fro1", "Fro2", "Fro5", "SaiO", "SaiE", "Nam", "face1", "face2", "face3", "face4", "face5", "face6", "bipedHeadg", "bipedHeadt", "bipedHeadv", "bipedHeadgh", "bipedHeadg2", "bipedHeadght", "bipedHeadgt", "bipedHeadgtt", "bipedHeadc7", "bipedHeadc8", "bipedHeadrad", "bipedHeadradl", "bipedHeadradl2", "bipedHeadssj3t", "bipedHeadsg", "bipedHeadst", "bipedHeadsv", "bipedHeadsgh", "bipedHeadssg", "bipedHeadsst", "bipedHeadssv", "bipedHeadssgh"));
         ArrayList<String> rightArm = new ArrayList<>();
         rightArm.add("rightarmshoulder");//GiTurtleMdl,衣服的右臂
         rightArm.add("Rarm");//DBC_GiTurtleMdl,右臂
@@ -433,27 +386,35 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
         body.add("SaiT2");//赛亚人尾巴
         body.add("FroB");//冰冻恶魔尾巴
         body.add("Fro5b");//冰冻恶魔尾巴
+        ArrayList<String> wears = new ArrayList<>(Arrays.asList("rightarmshoulder","Rarm","WRightarm","leftarmshoulder","Larm","WLeftarm","WRightleg","WLeftleg"));
 
 
         for (Field field : modelBipedBody.getClass().getFields()) {
             if (field.getType().getName().equals("net.minecraft.client.model.ModelRenderer")) {
                 field.setAccessible(true);
                 //ModelRenderer mr1 = (ModelRenderer) field.get(modelBipedBody);
+                String fieldName = field.getName();
+                if (head.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedHead, field);
+                } else if (rightArm.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedRightArm, field);
+                } else if (leftArm.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedLeftArm, field);
+                } else if (rightLeg.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedRightLeg, field);
+                } else if (leftLeg.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedLeftLeg, field);
+                } else if (body.contains(fieldName)) {
+                    sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedBody, field);
+                }
 
-                    if (head.contains(field.getName())) {
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedHead,field,true);
-                    } else if (rightArm.contains(field.getName())) {
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedRightArm,field,false);
-                    } else if (leftArm.contains(field.getName())) {
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedLeftArm,field,false);
-                    }else if(rightLeg.contains(field.getName())){
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedRightLeg,field,false);
-                    }else if(leftLeg.contains(field.getName())){
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedLeftLeg,field,false);
-                    }else if (body.contains(field.getName())){
-                        sync(modelBipedBody, (PartRenderer) modelBipedBody.bipedBody,field,false);
-                    }
-
+                /*if (wears.contains(fieldName)){
+                    ModelRenderer2 modelRenderer2 = (ModelRenderer2) field.get(modelBipedBody);
+                    modelRenderer2.function = modelBiped -> (bends -> {
+                        GL11.glScalef(1.03f, 1.03f, 1.03f);
+                        return null;
+                    });
+                }*/
             }
         }
     }
@@ -462,83 +423,23 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
         vec1.translate(vec2.getX(), vec2.getY(), vec2.getZ());
     }
 
-    private static void sync(JinRyuu.JRMCore.entity.ModelBipedBody modelBipedBody, PartRenderer partRenderer, Field field,boolean syncBody) throws IllegalAccessException{
+    private static void sync(JinRyuu.JRMCore.entity.ModelBipedBody modelBipedBody, PartRenderer partRenderer, Field field) throws IllegalAccessException {
         ModelRenderer modelRenderer = (ModelRenderer) field.get(modelBipedBody);
-        if(modelRenderer != null) {
+        if (modelRenderer != null) {
             if (!(modelRenderer instanceof ModelRenderer2)) {
-                ModelRenderer2 modelRenderer2;
-                if(syncBody){//转换成ModelRenderer3,使render方法失效，并将它们加入身体的子类，以便身体的转动能够应用，同时将它们的旋转角度跟头部同步
-                    modelRenderer2 = new ModelRenderer2.ModelRenderer3(modelBipedBody, convertBends(modelBipedBody, ModelRendererBends.class, modelRenderer), (PartRenderer) modelBipedBody.bipedBody);
-                    modelBipedBody.bipedBody.addChild(modelRenderer2);
-                }else {//将它们转换成ModelRenderer2
-                    modelRenderer2 = new ModelRenderer2(modelBipedBody, convertBends(modelBipedBody, ModelRendererBends.class, modelRenderer), partRenderer);
-                }
+                ModelRenderer2 modelRenderer2 = new ModelRenderer2(Utils.convertBends(modelBipedBody, ModelRendererBends.class, modelRenderer), (BodyRenderer) modelBipedBody.bipedBody, partRenderer);
+                //modelRenderer2.source.offsetX = modelRenderer2.source.offsetY = modelRenderer2.source.offsetZ = 0;
                 field.set(modelBipedBody, modelRenderer2);
-            }
-            ModelRendererBends mr1 = (ModelRendererBends) field.get(modelBipedBody);
-            mr1.sync(partRenderer);//同步
-            if(syncBody) {
-                setOffset(mr1, partRenderer);
-            }
-        }
-    }
-
-    //通过Gson将父类ModelRenderer转换成子类ModelRendererBends及其子类
-    private static ModelRendererBends convertBends(ModelBase base, Class<? extends ModelRendererBends> cl, ModelRenderer modelRenderer) {
-        if(modelRenderer != null) {
-            if (cl.isAssignableFrom(modelRenderer.getClass())) {
-                return (ModelRendererBends) modelRenderer;
-            }
-            JsonObject jsonObject = new JsonParser().parse(gson.toJson(modelRenderer)).getAsJsonObject();
-            jsonObject.addProperty("scaleX", 1.0F);
-            jsonObject.addProperty("scaleY", 1.0F);
-            jsonObject.addProperty("scaleZ", 1.0F);
-            if (jsonObject.has("textureOffsetY")) {
-                jsonObject.addProperty("txOffsetX", jsonObject.get("textureOffsetX").getAsInt());
-                jsonObject.addProperty("txOffsetY", jsonObject.get("textureOffsetY").getAsInt());
-            } else {
-                jsonObject.addProperty("txOffsetX", jsonObject.get("field_78803_o").getAsInt());
-                jsonObject.addProperty("txOffsetY", jsonObject.get("field_78813_p").getAsInt());
-            }
-            ModelRendererBends bends = gson.fromJson(jsonObject, cl);
-
-            if (bends instanceof PartRenderer) {
-                //((PartRenderer)bends).thisTicksToRender = new ArrayList<>();
-                ((PartRenderer) bends).modelBase = base;
-            }
-            bends.rotation = new SmoothVector3f();
-            bends.pre_rotation = new SmoothVector3f();
-            bends.setShowChildIfHidden(false);
-            bends.cubeList = convertBends(bends, jsonObject.get("txOffsetX").getAsInt(), jsonObject.get("txOffsetY").getAsInt(), modelRenderer.cubeList);
-            bends.childModels = modelRenderer.childModels;
-            base.boxList.remove(modelRenderer);
-            base.boxList.add(bends);
-
-            ReflectionHelper.setPrivateValue(ModelRenderer.class, bends, base, "baseModel", "field_78810_s");
-
-            return bends;
-        }
-        return null;
-    }
-
-    private static List convertBends(ModelRenderer modelRenderer, int textureOffsetX, int textureOffsetY, List boxes) {//将ModelBox转换成ModelBoxBends
-        ArrayList list = new ArrayList<>();
-        for (Object obj : boxes) {
-            if (obj instanceof ModelBox) {
-                ModelBox box = (ModelBox) obj;
-                list.add(new ModelBoxBends(modelRenderer, textureOffsetX, textureOffsetY, box.posX1, box.posY1, box.posZ1, (int) (box.posX2 - box.posX1), (int) (box.posY2 - box.posY1), (int) (box.posZ2 - box.posZ1), 0));
+            }else{
+                if(Strings.isNullOrEmpty(partRenderer.part) || !partRenderer.part.equals("head")) {
+                    ((ModelRenderer2) modelRenderer).sync(partRenderer);
+                }
             }
         }
-        return list;
-    }
-
-    public static void setOffset(ModelRenderer mr1, ModelRenderer mr2) {
-        mr1.offsetX = mr2.offsetX;
-        mr1.offsetY = mr2.offsetY;
-        mr1.offsetZ = mr2.offsetZ;
     }
 
     public static void renderBody(JinRyuu.JRMCore.entity.ModelBipedBody body, float par2) {//渲染身体
+
         int textureId = LWJGLTools.getCurrentBindingTexture();
         FloatBuffer colors = LWJGLTools.getCurrentColorRGBA();
         float f6;
@@ -564,19 +465,25 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 //body.bipedLeftLeg.render(par2);
                 //body.bipedRightLeg.render(par2);
                 //System.out.println(body.getClass().getName());
+
                 body.bipedBody.render(par2);
+
 
                 body.bipedLeftLeg.render(par2);//腿部材质
                 body.bipedRightLeg.render(par2);//腿部材质
-                if(textureId != 0){
+
+                if (textureId != 0) {
                     GL11.glPushMatrix();
-                    GL11.glScalef(0.985f,0.985f,0.985f);//缩小腿部大小，防止腿部将材质覆盖，否则材质不显示
-                    GL11.glColor4f(colors.get(0),colors.get(1),colors.get(2),colors.get(3));
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D,textureId);
+                    GL11.glScalef(0.985f, 0.985f, 0.985f);//缩小腿部大小，防止腿部将材质覆盖，否则材质不显示
+                    GL11.glColor4f(colors.get(0), colors.get(1), colors.get(2), colors.get(3));
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
                     body.bipedRightLeg.render(par2);
                     body.bipedLeftLeg.render(par2);
                     GL11.glPopMatrix();
                 }
+
+
                 //System.out.println("texture " + (LWJGLTools.getCurrentBindingTexture() == textureId ? "true" : "false"));
                 //System.out.println("colors " + LWJGLTools.getCurrentColorRGBA().compareTo(colors));
                 //body.bipedHead.render(par2);
@@ -630,8 +537,8 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
             float bbY = (bounce ? MathHelper.sin(body.rot1 * 0.6662F * bspeed * 1.5F + 3.1415927F) * body.rot2 * 0.03F : 0.0F) * (float) b * 0.1119F;
             GL11.glTranslatef(0.0F, (f6 - 1.0F) * 1.5F + bbY, 0.015F + bt);
             GL11.glScalef(1.0F, bsY, bs);
-            setRotation(body.breast, -br, 0.0F, 0.0F);
-            setRotation(body.breast2, br, 3.141593F, 0.0F);
+            Utils.setRotation(body.breast, -br, 0.0F, 0.0F);
+            Utils.setRotation(body.breast2, br, 3.141593F, 0.0F);
             if (bounce) {
                 ModelRenderer var10000 = body.breast;
                 var10000.rotateAngleX += -MathHelper.cos(body.rot1 * 0.6662F * bspeed + 3.1415927F) * body.rot2 * 0.05F * (float) b * 0.1119F;
