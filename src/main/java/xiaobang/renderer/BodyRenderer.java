@@ -1,11 +1,8 @@
 package xiaobang.renderer;
 
 import JinRyuu.JBRA.ModelBipedDBC;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBase;
+import JinRyuu.JRMCore.entity.ModelBipedBody;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
 
@@ -20,7 +17,7 @@ public class BodyRenderer extends PartRenderer {
     public PartRenderer leftLeg;
     public PartRenderer rightLeg;
 
-    public BodyRenderer(ModelBase argModel, int argTexOffsetX, int argTexOffsetY) {
+    public BodyRenderer(ModelBipedBody argModel, int argTexOffsetX, int argTexOffsetY) {
         super(argModel, argTexOffsetX, argTexOffsetY);
         this.part = "body";
         this.modelBase = argModel;
@@ -30,19 +27,14 @@ public class BodyRenderer extends PartRenderer {
         int textureId = LWJGLTools.getCurrentBindingTexture();
         FloatBuffer colors = LWJGLTools.getCurrentColorRGBA();
         if (this.childModels != null) {
-            int i = 0;
-            for(Iterator it = childModels.iterator();it.hasNext();){
+            for (Iterator it = childModels.iterator(); it.hasNext(); ) {
                 Object obj = it.next();
-                i++;
-                if(obj instanceof ModelRenderer2.ModelRenderer3){
-                    ((ModelRenderer2.ModelRenderer3) obj).render2(par1);
-                    //System.out.println("modelRenderer3 " + i);
-                } else if (obj instanceof ModelRenderer) {
+                if (obj instanceof ModelRenderer) {
                     ((ModelRenderer) obj).render(par1);
                     //System.out.println("modelRenderer " + i);
                 }
-                GL11.glColor4f(colors.get(0),colors.get(1),colors.get(2),colors.get(3));
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D,textureId);
+                GL11.glColor4f(colors.get(0), colors.get(1), colors.get(2), colors.get(3));
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
             }
         }
         if (modelBase instanceof ModelBipedDBC) {
@@ -79,10 +71,11 @@ public class BodyRenderer extends PartRenderer {
                     GL11.glCallList(this.displayList);
                 }
 
+                matrix = LWJGLTools.getCurrentModelViewMatrix();
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
                     renderChildModels(p_78785_1_);
                 }
-                matrix = LWJGLTools.getCurrentModelViewMatrix();
+
             } else {
                 if (this.rotationPointY2 == 0.0F) {//调整旋转原点
                     GL11.glTranslatef(this.rotationPointX * p_78785_1_, this.rotationPointY * p_78785_1_, this.rotationPointZ * p_78785_1_);
@@ -101,10 +94,11 @@ public class BodyRenderer extends PartRenderer {
                     GL11.glTranslatef(0, this.rotationPointY * p_78785_1_, 0);
                 }
 
+                matrix = LWJGLTools.getCurrentModelViewMatrix();
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
                     renderChildModels(p_78785_1_);
                 }
-                matrix = LWJGLTools.getCurrentModelViewMatrix();
+
                 GL11.glTranslatef(-this.rotationPointX * p_78785_1_, -this.rotationPointY * p_78785_1_, -this.rotationPointZ * p_78785_1_);
 
             }
@@ -141,10 +135,11 @@ public class BodyRenderer extends PartRenderer {
                 GL11.glTranslatef(0, this.rotationPointY * p_78785_1_, 0);
             }
 
+            matrix = LWJGLTools.getCurrentModelViewMatrix();
             if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
                 renderChildModels(p_78785_1_);
             }
-            matrix = LWJGLTools.getCurrentModelViewMatrix();
+
             GL11.glPopMatrix();
         }
 

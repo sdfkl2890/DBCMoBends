@@ -2,6 +2,7 @@ package xiaobang.renderer;
 
 import JinRyuu.JBRA.ModelBipedDBC;
 import JinRyuu.JBRA.ModelRendererJBRA;
+import JinRyuu.JRMCore.entity.ModelBipedBody;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import joptsimple.internal.Strings;
@@ -12,10 +13,8 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
-import xiaobang.ModelBipedBody;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 
 import static JinRyuu.JRMCore.entity.ModelBipedBody.g;
 
@@ -23,6 +22,8 @@ public class PartRenderer extends ModelRendererBends2 {//ModelRenderBends
     public FloatBuffer matrix;
     protected int displayList;
     public ModelBase modelBase;
+
+
     public String part;
 
 
@@ -72,7 +73,7 @@ public class PartRenderer extends ModelRendererBends2 {//ModelRenderBends
                 GL11.glScalef((0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F), 0.5F + 0.5F / ModelBipedDBC.f, (0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F));
                 GL11.glTranslatef(0.0F, (ModelBipedDBC.f - 1.0F) / ModelBipedDBC.f * (2.0F - ((ModelBipedDBC.f >= 1.5F && ModelBipedDBC.f <= 2.0F) ? ((2.0F - ModelBipedDBC.f) / 2.5F) : ((ModelBipedDBC.f < 1.5F && ModelBipedDBC.f >= 1.0F) ? ((ModelBipedDBC.f * 2.0F - 2.0F) * 0.2F) : 0.0F))), 0.0F);
                 if (ModelRendererJBRA2.textureId != 0) {
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);//此处绑定了透明材质，使得腿部材质出现，为毛啊
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);//此处绑定了未知材质，使得腿部材质出现，为毛啊
                 }
                 if (ModelRendererJBRA2.colors != null) {
                     GL11.glColor4f(ModelRendererJBRA2.colors.get(0), ModelRendererJBRA2.colors.get(1), ModelRendererJBRA2.colors.get(2), ModelRendererJBRA2.colors.get(3));
@@ -98,7 +99,6 @@ public class PartRenderer extends ModelRendererBends2 {//ModelRenderBends
         }
 
         GL11.glTranslatef(this.offsetX, this.offsetY, this.offsetZ);
-        int i;
         if (this.rotateAngleX == 0.0F && this.rotateAngleY == 0.0F && this.rotateAngleZ == 0.0F) {
             if (this.rotationPointX == 0.0F && this.rotationPointY == 0.0F && this.rotationPointZ == 0.0F) {
                 GL11.glRotatef(-this.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);

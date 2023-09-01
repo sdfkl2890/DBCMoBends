@@ -1,6 +1,8 @@
 package xiaobang;
 
 
+import JinRyuu.JBRA.DBC_GiTurtleMdl;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
@@ -11,11 +13,7 @@ public class ClassTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if ("JinRyuu.JRMCore.entity.ModelBipedBody".equals(transformedName)) {//修改init,setRotationAngles,renderBody方法,加上bipedRightForeArm,bipedLeftForeArm,bipedRightForeLeg,bipedLeftForeLeg属性
-            ClassReader cr = new ClassReader(basicClass);
-            ClassNode cn = new ClassNode();
-            cr.accept(cn, 0);
-            ClassWriter cw = new ClassWriter(cr, 0);
-            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+            return acceptVisitor(basicClass,new ClassVisitor(Opcodes.ASM5) {
 
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
@@ -55,14 +53,9 @@ public class ClassTransformer implements IClassTransformer {
                     cv.visitEnd();
                 }
 
-            }, ClassReader.EXPAND_FRAMES);
-            return cw.toByteArray();
-        } else if ("JinRyuu.JBRA.RenderPlayerJBRA".equals(transformedName)) {//玩家身体转动,Editor.rotateCorpse
-            ClassReader cr = new ClassReader(basicClass);
-            ClassNode cn = new ClassNode();
-            cr.accept(cn, 0);
-            ClassWriter cw = new ClassWriter(cr, 0);
-            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+            });
+        } else if ("JinRyuu.JBRA.RenderPlayerJBRA".equals(transformedName)) {//玩家身体转动,Utils.rotateCorpse
+            return acceptVisitor(basicClass,new ClassVisitor(Opcodes.ASM5) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                     MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
@@ -73,14 +66,10 @@ public class ClassTransformer implements IClassTransformer {
                     }
                     return methodVisitor;
                 }
-            }, ClassReader.EXPAND_FRAMES);
-            return cw.toByteArray();
+            });
+
         } else if ("net.gobbob.mobends.client.model.ModelBoxBends".equals(transformedName)) {//将offsetTextureQuad方法里面的输出关掉
-            ClassReader cr = new ClassReader(basicClass);
-            ClassNode cn = new ClassNode();
-            cr.accept(cn, 0);
-            ClassWriter cw = new ClassWriter(cr, 0);
-            cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+            return acceptVisitor(basicClass,new ClassVisitor(Opcodes.ASM5) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                     MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
@@ -89,16 +78,35 @@ public class ClassTransformer implements IClassTransformer {
                     }
                     return methodVisitor;
                 }
-            }, ClassReader.EXPAND_FRAMES);
-            return cw.toByteArray();
-        }
+            });
+        }/*else if("JinRyuu.JBRA.DBC_GiTurtleMdl".equals(transformedName) || "JinRyuu.JBRA.JRMC_GiTurtleMdl".equals(transformedName)){
+            return acceptVisitor(basicClass, new ClassVisitor(Opcodes.ASM5) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
+                    if(!name.equals("<init>")){
+                        return new MyMethodAdapter(Opcodes.ASM5,methodVisitor,"lwjgl");
+                    }
+                    return methodVisitor;
+                }
+            });
+        }*/
+
         return basicClass;
+    }
+
+    private static byte[] acceptVisitor(byte[] basicClass,ClassVisitor visitor){
+        ClassReader cr = new ClassReader(basicClass);
+        ClassNode cn = new ClassNode();
+        cr.accept(cn, 0);
+        ClassWriter cw = new ClassWriter(cr, 0);
+        ReflectionHelper.setPrivateValue(ClassVisitor.class,visitor,cw,"cv");
+        cr.accept(visitor,ClassReader.EXPAND_FRAMES);
+        return cw.toByteArray();
     }
 
     static class MyMethodAdapter extends MethodVisitor {
         String methodName;
-
-        byte times = 0;
 
         public MyMethodAdapter(int api, MethodVisitor methodVisitor, String methodName) {
             super(api, methodVisitor);
@@ -138,12 +146,9 @@ public class ClassTransformer implements IClassTransformer {
                         break;
                     case "rotateCorpse":
                         mv.visitVarInsn(Opcodes.ALOAD, 1);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "rotateCorpse", "(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", false);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Utils", "rotateCorpse", "(Lnet/minecraft/client/entity/AbstractClientPlayer;)V", false);
                         break;
-                    /*case "bindTexture":
-                        mv.visitVarInsn(Opcodes.ILOAD, 0);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "xiaobang/Editor", "bindTexture", "(I)V", false);
-                        break;*/
+
                 }
             }
             super.visitInsn(opcode);
@@ -154,6 +159,16 @@ public class ClassTransformer implements IClassTransformer {
                                     String desc, boolean itf) {
             if (methodName.equals("offsetTextureQuad")) {//关闭该方法里面的System.out.println输出
                 if (opcode == Opcodes.INVOKEVIRTUAL && owner.equals("java/io/PrintStream") && name.equals("println") && desc.equals("(Ljava/lang/String;)V")) {
+                    return;
+                }
+            }
+            if(methodName.equals("lwjgl")) {
+                if (opcode == Opcodes.INVOKESTATIC && owner.equals("org/lwjgl/opengl/GL11")) {
+                    if ((name.equals("glScalef") || name.equals("glTranslatef")) && desc.equals("(FFF)V")) {
+                        mv.visitMethodInsn(opcode, "xiaobang/Utils", name, desc, false);
+                    } else if (name.equals("glRotatef") && desc.equals("(FFFF)V")) {
+                        mv.visitMethodInsn(opcode, "xiaobang/Utils", name, desc, false);
+                    }
                     return;
                 }
             }

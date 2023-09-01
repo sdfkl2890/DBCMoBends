@@ -18,6 +18,9 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.FloatBuffer;
+import java.util.Arrays;
+
 @SideOnly(Side.CLIENT)
 @Mod(modid = "dbcmobends", name = "DBCMoBends", version = "0.1", dependencies = "required-after:jinryuubetterrenderaddon;after:mobends")
 public class DBCMoBends {
@@ -32,6 +35,27 @@ public class DBCMoBends {
             if (event.entity instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) event.entity;
                 if (event.renderer instanceof RenderPlayerJBRA) {
+                    /*GL11.glPushMatrix();
+                    FloatBuffer current = LWJGLTools.getCurrentModelViewMatrix();
+                    float[] dataArray = new float[current.remaining()];
+                    current.get(dataArray);
+                    System.out.println("current1: " + Arrays.toString(dataArray));
+                    GL11.glTranslatef(1.0f,1.0f,1.0f);
+                    current = LWJGLTools.getCurrentModelViewMatrix();
+                    dataArray = new float[current.remaining()];
+                    current.get(dataArray);
+                    System.out.println("current2: " + Arrays.toString(dataArray));
+                    GL11.glRotatef(90f,1.0f,0.0f,0.0f);
+                    current = LWJGLTools.getCurrentModelViewMatrix();
+                    dataArray = new float[current.remaining()];
+                    current.get(dataArray);
+                    System.out.println("current3: " + Arrays.toString(dataArray));
+                    GL11.glRotatef(90f,0.0f,1.0f,0.0f);
+                    current = LWJGLTools.getCurrentModelViewMatrix();
+                    dataArray = new float[current.remaining()];
+                    current.get(dataArray);
+                    System.out.println("current4: " + Arrays.toString(dataArray));
+                    GL11.glPopMatrix();*/
                     if (!(event.renderer.modelArmor instanceof JinRyuu.JRMCore.entity.ModelBipedBody)) {
                         event.renderer.modelArmor = new JinRyuu.JRMCore.entity.ModelBipedBody(0.5F);//这可能没有必要
                     }

@@ -1,5 +1,6 @@
 package xiaobang.renderer;
 
+import JinRyuu.JRMCore.entity.ModelBipedBody;
 import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.minecraft.client.model.ModelBase;
 import org.lwjgl.opengl.GL11;
