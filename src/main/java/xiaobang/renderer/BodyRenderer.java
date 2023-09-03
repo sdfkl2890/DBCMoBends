@@ -48,7 +48,7 @@ public class BodyRenderer extends PartRenderer {
             }
         }
 
-        head.render(par1);//渲染头部，以便腿部衣服材质可以正常显示,详见PartRenderer
+        //head.render(par1);//渲染头部，以便腿部衣服材质可以正常显示,详见PartRenderer
 
     }
 
