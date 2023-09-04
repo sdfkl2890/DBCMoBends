@@ -1,7 +1,7 @@
 package xiaobang;
 
+import JinRyuu.DragonBC.common.DBCKiTech;
 import JinRyuu.JBRA.ModelBipedDBC;
-import JinRyuu.JBRA.ModelRendererJBRA;
 import JinRyuu.JRMCore.JRMCoreConfig;
 import JinRyuu.JRMCore.JRMCoreH;
 import joptsimple.internal.Strings;
@@ -14,7 +14,6 @@ import net.gobbob.mobends.pack.BendsVar;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +25,10 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
-import xiaobang.renderer.*;
+import xiaobang.renderer.BodyRenderer;
+import xiaobang.renderer.ModelRenderer2;
+import xiaobang.renderer.PartRenderer;
+import xiaobang.renderer.PartRenderer_SeperatedChild;
 
 import java.lang.reflect.Field;
 import java.nio.FloatBuffer;
@@ -71,7 +73,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
 
     public static void init(JinRyuu.JRMCore.entity.ModelBipedBody body, float par1) {//JinRyuu.JRMCore.entity.ModelBipedBody初始化方法插入
         try {
-            System.out.println(body.getClass().getName() + par1);
+            //System.out.println(body.getClass().getName() + par1);
             ModelRendererBends bipedRightForeArm = new ModelRendererBends(body, 40, 22);
             bipedRightForeArm.addBox(0.0F, 0.0F, -4.0F, 4, 6, 4, par1);
             bipedRightForeArm.setRotationPoint(-3.0F, 4.0F, 2.0F);
@@ -98,6 +100,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
             Utils.setField(leftForeArm, body, bipedLeftForeArm);
             Utils.setField(rightForeLeg, body, bipedRightForeLeg);
             Utils.setField(leftForeLeg, body, bipedLeftForeLeg);
+
 
             BodyRenderer bodyRenderer = Utils.convertBends(body, BodyRenderer.class, body.bipedBody);
             bodyRenderer.setRotationPointY2(par1 + 12.0F);
@@ -128,7 +131,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
 
             body.bipedHeadwear = Utils.convertBends(body, ModelRendererBends.class, body.bipedHeadwear);
             body.bipedHeadwear.cubeList.clear();
-            body.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8,8,8, par1 + 0.5F);
+            body.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, par1 + 0.5F);
 
             body.bipedRightArm = bodyRenderer.rightArm = Utils.convertBends(body, PartRenderer_SeperatedChild.class, body.bipedRightArm).setMother((ModelRendererBends) body.bipedBody).setSeperatedPart(bipedRightForeArm);
             body.bipedRightArm.cubeList.clear();
@@ -145,7 +148,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
             body.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, par1);
 
 
-            body.bipedLeftLeg = bodyRenderer.leftLeg =  Utils.convertBends(body, PartRenderer.class, body.bipedLeftLeg);
+            body.bipedLeftLeg = bodyRenderer.leftLeg = Utils.convertBends(body, PartRenderer.class, body.bipedLeftLeg);
             body.bipedLeftLeg.cubeList.clear();
             body.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, par1);
 
@@ -214,7 +217,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 modelBendsPlayer.renderRotation.set(data.renderRotation);
                 modelBendsPlayer.renderItemRotation.set(data.renderItemRotation);
                 modelBendsPlayer.swordTrail = data.swordTrail;
-                if (Data_Player.get(argEntity.getEntityId()).canBeUpdated()) {
+                if (data.canBeUpdated()) {
 
 
                     modelBendsPlayer.renderOffset.setSmooth(new Vector3f(0.0F, -1.0F, 0.0F), 0.5F);
@@ -231,50 +234,55 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                     ((ModelRendererBends) modelBendsPlayer.bipedLeftForeArm).resetScale();
                     ((ModelRendererBends) modelBendsPlayer.bipedRightForeLeg).resetScale();
                     ((ModelRendererBends) modelBendsPlayer.bipedLeftForeLeg).resetScale();
-                    BendsVar.tempData = Data_Player.get(argEntity.getEntityId());
+                    BendsVar.tempData = data;
                     if (argEntity.isRiding()) {
-                        AnimatedEntity.getByEntity(argEntity).get("riding").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("riding").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "riding");
                     } else if (argEntity.isInWater()) {
-                        AnimatedEntity.getByEntity(argEntity).get("swimming").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("swimming").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "swimming");
-                    } else if (!Data_Player.get(argEntity.getEntityId()).isOnGround() | Data_Player.get(argEntity.getEntityId()).ticksAfterTouchdown < 2.0F) {
-                        AnimatedEntity.getByEntity(argEntity).get("jump").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                    } else if (!data.isOnGround() | data.ticksAfterTouchdown < 2.0F) {
+                        AnimatedEntity.getByEntity(argEntity).get("jump").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "jump");
-                        //if (modelBendsPlayer.bipedBody != null) {
-                        //    ((ModelRendererBends) modelBendsPlayer.bipedBody).rotation = new net.gobbob.mobends.util.SmoothVector3f();
-                        //}
+
+                        if ((((data.motion.x != 0.0) ? 1 : 0) | ((data.motion.z != 0.0) ? 1 : 0)) != 0) {
+                            if (JRMCoreH.Pwrtyp == 1 && DBCKiTech.floating) {
+                                ((ModelRendererBends) modelBendsPlayer.bipedHead).rotation.setSmoothX(modelBendsPlayer.headRotationX - 90, 0.3F);
+                            }
+                        }
+
 
                     } else {
-                        if (Data_Player.get(argEntity.getEntityId()).motion.x == 0.0F & Data_Player.get(argEntity.getEntityId()).motion.z == 0.0F) {
-                            AnimatedEntity.getByEntity(argEntity).get("stand").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        if (data.motion.x == 0.0F & data.motion.z == 0.0F) {
+                            AnimatedEntity.getByEntity(argEntity).get("stand").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                             BendsPack.animate(modelBendsPlayer, "player", "stand");
                         } else if (argEntity.isSprinting()) {
-                            AnimatedEntity.getByEntity(argEntity).get("sprint").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                            AnimatedEntity.getByEntity(argEntity).get("sprint").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                             BendsPack.animate(modelBendsPlayer, "player", "sprint");
                         } else {
-                            AnimatedEntity.getByEntity(argEntity).get("walk").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                            AnimatedEntity.getByEntity(argEntity).get("walk").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                             BendsPack.animate(modelBendsPlayer, "player", "walk");
+
                         }
 
                         if (argEntity.isSneaking()) {
-                            AnimatedEntity.getByEntity(argEntity).get("sneak").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                            AnimatedEntity.getByEntity(argEntity).get("sneak").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                             BendsPack.animate(modelBendsPlayer, "player", "sneak");
 
                         }
                     }
 
                     if (modelBendsPlayer.aimedBow) {
-                        AnimatedEntity.getByEntity(argEntity).get("bow").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("bow").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "bow");
                     } else if (((EntityPlayer) argEntity).getCurrentEquippedItem() != null && ((EntityPlayer) argEntity).getCurrentEquippedItem().getItem() instanceof ItemPickaxe || ((EntityPlayer) argEntity).getCurrentEquippedItem() != null && Block.getBlockFromItem(((EntityPlayer) argEntity).getCurrentEquippedItem().getItem()) != Blocks.air) {
-                        AnimatedEntity.getByEntity(argEntity).get("mining").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("mining").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "mining");
                     } else if (((EntityPlayer) argEntity).getCurrentEquippedItem() != null && ((EntityPlayer) argEntity).getCurrentEquippedItem().getItem() instanceof ItemAxe) {
-                        AnimatedEntity.getByEntity(argEntity).get("axe").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("axe").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "axe");
                     } else {
-                        AnimatedEntity.getByEntity(argEntity).get("attack").animate((EntityLivingBase) argEntity, modelBendsPlayer, Data_Player.get(argEntity.getEntityId()));
+                        AnimatedEntity.getByEntity(argEntity).get("attack").animate((EntityLivingBase) argEntity, modelBendsPlayer, data);
                         BendsPack.animate(modelBendsPlayer, "player", "attack");
                         //if (modelBendsPlayer.bipedBody != null) {
                         //    ((ModelRendererBends) modelBendsPlayer.bipedBody).rotation = new net.gobbob.mobends.util.SmoothVector3f();
@@ -291,6 +299,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                     if (i != 9527) {
                         if (JRMCoreH.StusEfctsClient(7, i)) {
                             BendsPack.animate(modelBendsPlayer, "player", "swoop");//俯冲
+                            ((ModelRendererBends) modelBendsPlayer.bipedHead).rotation.setSmoothX(modelBendsPlayer.headRotationX - 80, 0.3F);
                         } else if (JRMCoreH.StusEfctsClient(1, i)) {
                             BendsPack.animate(modelBendsPlayer, "player", "ascend");//变身
                         } else if (JRMCoreH.StusEfctsClient(4, i)) {
@@ -301,7 +310,7 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                             BendsPack.animate(modelBendsPlayer, "player", "kaioken");//界王拳
                         }
                     }
-                    if (((!data.isOnGround() ? 1 : 0) | ((data.ticksAfterTouchdown < 2.0) ? 1 : 0)) != 0) {
+                    /*if (((!data.isOnGround() ? 1 : 0) | ((data.ticksAfterTouchdown < 2.0) ? 1 : 0)) != 0) {
                         if ((((data.motion.x != 0.0) ? 1 : 0) | ((data.motion.z != 0.0) ? 1 : 0)) != 0) {
                             if (i != 9527) {
                                 if (JRMCoreH.StusEfctsClient(7, i) && modelBendsPlayer.bipedHead != null) {//玩家冲刺时调整头部向上旋转90度
@@ -309,7 +318,8 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                                 }
                             }
                         }
-                    }
+                    }*/
+
 
                     boolean isNotFused = !JRMCoreH.isFused(argEntity);
                     boolean isFusionSelectedAvailable = (JRMCoreH.PlyrSettingsB((EntityPlayer) argEntity, 4) && isNotFused);
@@ -468,19 +478,26 @@ public class ModelBipedBody {//对JinRyuu.JRMCore.entity.ModelBipedBody的修改
                 //body.bipedRightLeg.render(par2);
                 //System.out.println(body.getClass().getName());
 
-
-
-
-                body.bipedHeadwear.render(par2);
                 body.bipedBody.render(par2);
 
-                if(body instanceof ModelBipedDBC){
+                if (body instanceof ModelBipedDBC) {
                     Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("jinryuumodscore:gui/normall.png"));
-                    GL11.glColor4f(0.0f,0.0f,0.0f,1.0f);
+                    //ResourceLocation armorTexture = RenderBiped.getArmorResource(body.Entity,);
+                    //GL11.glColor4f(0.0f,0.0f,0.0f,0.5f);
                 }
+
                 body.bipedLeftLeg.render(par2);//腿部材质
                 body.bipedRightLeg.render(par2);//腿部材质
 
+
+                /*if(body.Entity instanceof EntityPlayer){
+                    EntityPlayer player = ((EntityPlayer) body.Entity);
+                    ItemStack itemstack = player.inventory.armorItemInSlot(0);
+                    if(itemstack.getItem() instanceof ItemArmor){
+                        Minecraft.getMinecraft().getTextureManager().bindTexture(RenderBiped.getArmorResource(player, itemstack, 3, null));
+                    }
+                    body.bipedHeadwear.render(par2);
+                }*/
                 //body.bipedHeadwear.render(par2);
 
                 if (textureId != 0) {
