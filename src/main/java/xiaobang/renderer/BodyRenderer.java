@@ -2,7 +2,9 @@ package xiaobang.renderer;
 
 import JinRyuu.JBRA.ModelBipedDBC;
 import JinRyuu.JRMCore.entity.ModelBipedBody;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
 
@@ -46,7 +48,20 @@ public class BodyRenderer extends PartRenderer {
                     }
                 }
             }
+
+            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("jinryuumodscore:gui/normall.png"));
         }
+
+        rightLeg.render(par1);
+        leftLeg.render(par1);
+
+        GL11.glPushMatrix();
+        GL11.glColor4f(colors.get(0), colors.get(1), colors.get(2), colors.get(3));
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+        GL11.glScalef(0.985f, 0.985f, 0.985f);//缩小腿部大小，防止腿部将材质覆盖，否则材质不显示
+        rightLeg.render(par1);
+        leftLeg.render(par1);
+        GL11.glPopMatrix();
 
         //head.render(par1);//渲染头部，以便腿部衣服材质可以正常显示,详见PartRenderer
 
@@ -58,7 +73,10 @@ public class BodyRenderer extends PartRenderer {
         if (!this.compiled) {
             this.compileDisplayList(p_78785_1_);
         }
-
+        /*boolean isSneak = ((ModelBipedBody) modelBase).isSneak;
+        if(isSneak) {
+            GL11.glTranslatef(0f, -0.2f, 0.28f);
+        }*/
         GL11.glTranslatef(this.offsetX, this.offsetY, this.offsetZ);
         if (this.rotateAngleX == 0.0F && this.rotateAngleY == 0.0F && this.rotateAngleZ == 0.0F) {
             if (this.rotationPointX == 0.0F && this.rotationPointY == 0.0F && this.rotationPointZ == 0.0F && this.rotationPointY2 == 0.0F) {
@@ -70,7 +88,9 @@ public class BodyRenderer extends PartRenderer {
                 if (!this.isHidden & this.showModel) {
                     GL11.glCallList(this.displayList);
                 }
-
+                //if(isSneak){
+                //    GL11.glTranslatef(0f, 0.2f, -0.28f);
+                //}
                 matrix = LWJGLTools.getCurrentModelViewMatrix();
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
                     renderChildModels(p_78785_1_);
@@ -89,6 +109,11 @@ public class BodyRenderer extends PartRenderer {
                 if (!this.isHidden & this.showModel) {
                     GL11.glCallList(this.displayList);
                 }
+
+                //if(isSneak){
+                //    GL11.glTranslatef(0f, 0.2f, -0.28f);
+                //}
+
                 if (this.rotationPointY2 != 0.0F) {//渲染子模型时旋转原点复原
                     GL11.glTranslatef(0, -this.rotationPointY2 * p_78785_1_, 0);
                     GL11.glTranslatef(0, this.rotationPointY * p_78785_1_, 0);
@@ -96,6 +121,7 @@ public class BodyRenderer extends PartRenderer {
 
                 matrix = LWJGLTools.getCurrentModelViewMatrix();
                 if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
+
                     renderChildModels(p_78785_1_);
                 }
 
@@ -130,6 +156,10 @@ public class BodyRenderer extends PartRenderer {
                 GL11.glCallList(this.displayList);
             }
 
+            //if(isSneak){
+            //    GL11.glTranslatef(0f, 0.2f, -0.28f);
+            //}
+
             if (this.rotationPointY2 != 0.0F) {
                 GL11.glTranslatef(0, -this.rotationPointY2 * p_78785_1_, 0);
                 GL11.glTranslatef(0, this.rotationPointY * p_78785_1_, 0);
@@ -137,6 +167,7 @@ public class BodyRenderer extends PartRenderer {
 
             matrix = LWJGLTools.getCurrentModelViewMatrix();
             if ((this.showChildIfHidden || !this.isHidden & this.showModel)) {
+
                 renderChildModels(p_78785_1_);
             }
 

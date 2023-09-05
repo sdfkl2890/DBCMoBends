@@ -6,11 +6,13 @@ import JinRyuu.JRMCore.entity.ModelBipedBody;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import joptsimple.internal.Strings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import xiaobang.LWJGLTools;
 
@@ -62,32 +64,33 @@ public class PartRenderer extends ModelRendererBends2 {//ModelRenderBends
                 }
             }
         }
-        if (!Strings.isNullOrEmpty(this.part) && this.part.equalsIgnoreCase("head")) {
-            if (modelBase instanceof ModelBipedDBC) {
-                ModelBipedDBC dbc = (ModelBipedDBC) modelBase;
-                GL11.glPushMatrix();
-                //if(ModelRendererJBRA2.martix != null){
-                //    LWJGLTools.loadMartix(ModelRendererJBRA2.martix);
-                //}
-                //System.out.println("render child");
-                GL11.glScalef((0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F), 0.5F + 0.5F / ModelBipedDBC.f, (0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F));
-                GL11.glTranslatef(0.0F, (ModelBipedDBC.f - 1.0F) / ModelBipedDBC.f * (2.0F - ((ModelBipedDBC.f >= 1.5F && ModelBipedDBC.f <= 2.0F) ? ((2.0F - ModelBipedDBC.f) / 2.5F) : ((ModelBipedDBC.f < 1.5F && ModelBipedDBC.f >= 1.0F) ? ((ModelBipedDBC.f * 2.0F - 2.0F) * 0.2F) : 0.0F))), 0.0F);
-                if (ModelRendererJBRA2.textureId != 0) {
-                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);//此处绑定了未知材质，使得腿部材质出现，为毛啊
-                }
-                if (ModelRendererJBRA2.colors != null) {
-                    GL11.glColor4f(ModelRendererJBRA2.colors.get(0), ModelRendererJBRA2.colors.get(1), ModelRendererJBRA2.colors.get(2), ModelRendererJBRA2.colors.get(3));
-                }
-
-                for (int face = 0; face < 56; face++) {
-                    ModelRendererJBRA jbra = dbc.hairall[face * 4];
-                    if (jbra instanceof ModelRendererJBRA2) {
-
-                        ((ModelRendererJBRA2) jbra).render2(par1);//渲染自定义头发
+        if (!Strings.isNullOrEmpty(this.part)) {
+            if(this.part.equalsIgnoreCase("head")) {
+                if (modelBase instanceof ModelBipedDBC) {
+                    ModelBipedDBC dbc = (ModelBipedDBC) modelBase;
+                    GL11.glPushMatrix();
+                    //if(ModelRendererJBRA2.martix != null){
+                    //    LWJGLTools.loadMartix(ModelRendererJBRA2.martix);
+                    //}
+                    //System.out.println("render child");
+                    GL11.glScalef((0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F), 0.5F + 0.5F / ModelBipedDBC.f, (0.5F + 0.5F / ModelBipedDBC.f) * ((g <= 1) ? 1.0F : 0.85F));
+                    GL11.glTranslatef(0.0F, (ModelBipedDBC.f - 1.0F) / ModelBipedDBC.f * (2.0F - ((ModelBipedDBC.f >= 1.5F && ModelBipedDBC.f <= 2.0F) ? ((2.0F - ModelBipedDBC.f) / 2.5F) : ((ModelBipedDBC.f < 1.5F && ModelBipedDBC.f >= 1.0F) ? ((ModelBipedDBC.f * 2.0F - 2.0F) * 0.2F) : 0.0F))), 0.0F);
+                    if (ModelRendererJBRA2.textureId != 0) {
+                        GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModelRendererJBRA2.textureId);//此处绑定了未知材质，使得腿部材质出现，为毛啊
                     }
-                }
+                    if (ModelRendererJBRA2.colors != null) {
+                        GL11.glColor4f(ModelRendererJBRA2.colors.get(0), ModelRendererJBRA2.colors.get(1), ModelRendererJBRA2.colors.get(2), ModelRendererJBRA2.colors.get(3));
+                    }
 
-                GL11.glPopMatrix();
+                    for (int face = 0; face < 56; face++) {
+                        ModelRendererJBRA jbra = dbc.hairall[face * 4];
+                        if (jbra instanceof ModelRendererJBRA2) {
+
+                            ((ModelRendererJBRA2) jbra).render2(par1);//渲染自定义头发
+                        }
+                    }
+                    GL11.glPopMatrix();
+                }
             }
         }
     }
